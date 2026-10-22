@@ -246,7 +246,7 @@ export function renderPersonCard(person, section, index, options = {}) {
           <span class="pill">${esc(label)}</span>
         </div>
         <div class="person-tools">
-          <span class="age-readout" data-age>Age at ${CAMP.name} ${CAMP.year}: ${esc(person.dob ? ageLabel(person.dob, CAMP.cutoffDate) : "—")}</span>
+          <span class="age-readout" data-age>Age as at ${CAMP.ageAsOf}: ${esc(person.dob ? ageLabel(person.dob, CAMP.cutoffDate) : "—")}</span>
           ${options.canRemove ? '<button type="button" class="btn tiny ghost danger" data-remove>Remove</button>' : ""}
         </div>
       </header>

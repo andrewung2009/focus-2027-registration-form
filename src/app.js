@@ -136,8 +136,8 @@ function refreshCard(person) {
   const ageElement = card.querySelector("[data-age]");
   if (ageElement) {
     ageElement.textContent = person.dob
-      ? `Age at ${CAMP.name} ${CAMP.year}: ${ageLabel(person.dob, CAMP.cutoffDate)}`
-      : `Age at ${CAMP.name} ${CAMP.year}: —`;
+      ? `Age as at ${CAMP.ageAsOf}: ${ageLabel(person.dob, CAMP.cutoffDate)}`
+      : `Age as at ${CAMP.ageAsOf}: —`;
   }
 
   const alert = card.querySelector("[data-alert]");
