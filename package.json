@@ -1,0 +1,11 @@
+{
+  "name": "focus-2027-registration",
+  "version": "0.1.0",
+  "private": true,
+  "type": "module",
+  "description": "Focus 2027 camp registration form",
+  "scripts": {
+    "start": "node serve.js",
+    "test": "node --test"
+  }
+}
