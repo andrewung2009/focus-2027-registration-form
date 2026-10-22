@@ -92,6 +92,8 @@ function renderActionBar() {
 }
 
 function render() {
+  const intro = document.querySelector(".intro");
+  if (intro) intro.hidden = stage !== "edit";
   if (stage === "review") {
     root.innerHTML = renderReview(state, allEntries(state), counts(state));
     return;
@@ -381,7 +383,7 @@ async function submitRegistration() {
   if (!result.ok) {
     if (button) {
       button.disabled = false;
-      button.textContent = "Submit registration";
+      button.textContent = "Submit";
     }
     if (status) status.hidden = true;
     showBanner("error", result.error);

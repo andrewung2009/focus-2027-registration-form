@@ -108,7 +108,7 @@ export function renderReview(state, entries, counts) {
         ${groups}
         <div class="review-actions">
           <button type="button" class="btn" data-edit>Back to edit</button>
-          <button type="button" class="btn primary" data-submit>Submit registration</button>
+          <button type="button" class="btn primary" data-submit>Submit</button>
         </div>
         <p class="submit-status" data-submit-status role="status" aria-live="polite" hidden></p>
         <p class="review-fineprint">Submit once only. Your details are sent to the ${CAMP.name} ${CAMP.year} registration team.</p>
