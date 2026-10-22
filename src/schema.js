@@ -6,7 +6,7 @@ export const SECTIONS = [
     id: "adult",
     label: "Adult",
     plural: "Adults",
-    ages: "Aged 18 and above at Focus 2027",
+    ages: "Age 18 and above at Focus 2027",
     addLabel: "Add another adult",
     fields: ["name", "id", "dob", "gender", "phone", "diet"],
     program: null,
