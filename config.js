@@ -3,7 +3,7 @@ export const CAMP = {
   year: 2027,
   cutoffDate: "2028-01-01",
   formVersion: "1.1.0",
-  endpoint: "/api/register",
+  endpoint: "https://script.google.com/macros/s/AKfycbzsl_6pNNWXjnc3tr8Hq1h5SihG0a5weH7zmf-8l_AdJ0LWeZxhyi1CS9fMgUv_L1uUcA/exec",
 };
 
 export const CUTOFF_DATE = CAMP.cutoffDate;

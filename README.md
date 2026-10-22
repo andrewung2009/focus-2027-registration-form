@@ -39,6 +39,19 @@ A self-contained registration form for the Focus 2027 camp. Built with plain HTM
 
 Submissions are posted to the `/api/register` local endpoint (configured in `config.js`) and appended to `data/registrations.jsonl` by `serve.js`. To use a real endpoint later, change `endpoint` in `config.js`.
 
+## Connecting to Google Sheets
+
+Registrations can be saved to a Google spreadsheet through Google Apps Script:
+
+1. Create a Google Sheet for the registrations.
+2. In the sheet choose **Extensions → Apps Script**, delete any placeholder code, and paste the contents of [`apps-script/Code.gs`](apps-script/Code.gs).
+3. Choose **Deploy → New deployment → type: Web app**.
+4. Set **Execute as: Me**, and **Who has access: Anyone**.
+5. Deploy and copy the **Web app URL** (it ends in `/exec`).
+6. Put that URL in `endpoint` in `config.js`, then rebuild/redeploy the site.
+
+The script appends one row per camper to a "Registrations" tab (created automatically), and ignores duplicate submission attempts with the same registration ID. If you edit the script later, update the deployment via **Deploy → Manage deployments → edit** so the same URL continues to work.
+
 ## Testing
 
 ```sh
