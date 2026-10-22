@@ -1135,3 +1135,207 @@ textarea.input {
     background: #fff;
   }
 }
+
+
+.admin-page { background: var(--bg, #f4f2ea); }
+
+.adm-head {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: flex-end;
+  justify-content: space-between;
+  gap: 0.9rem;
+  margin-bottom: 1.2rem;
+}
+
+.adm-eyebrow {
+  text-transform: uppercase;
+  letter-spacing: 0.16em;
+  font-size: 0.68rem;
+  font-weight: 700;
+  color: #5f8d82;
+  margin-bottom: 0.25rem;
+}
+
+.adm-title {
+  font-size: 1.35rem;
+}
+
+.adm-tools {
+  display: flex;
+  gap: 0.5rem;
+  align-items: center;
+}
+
+.adm-tools .input {
+  max-width: 22rem;
+}
+
+.adm-notice {
+  margin-bottom: 1rem;
+  padding: 0.75rem 0.9rem;
+  border-radius: var(--radius-sm);
+  border: 1px solid var(--line);
+  background: var(--card);
+  font-size: 0.92rem;
+}
+
+.adm-notice.error {
+  border-color: #f3c3bd;
+  background: var(--danger-soft);
+  color: var(--danger);
+}
+
+.adm-notice.info {
+  border-color: var(--line);
+  color: var(--muted);
+}
+
+.adm-key {
+  padding: 1.1rem 1.25rem;
+  margin-bottom: 1.2rem;
+  max-width: 34rem;
+}
+
+.adm-key .field-label {
+  display: block;
+  margin-bottom: 0.4rem;
+}
+
+.key-row {
+  display: flex;
+  gap: 0.5rem;
+}
+
+.adm-hint {
+  margin-top: 0.55rem;
+  font-size: 0.82rem;
+  color: var(--muted);
+}
+
+.adm-summary {
+  display: grid;
+  grid-auto-flow: column;
+  grid-auto-columns: minmax(8rem, 1fr);
+  gap: 0.6rem;
+  margin-bottom: 1.2rem;
+  overflow-x: auto;
+}
+
+.adm-stat {
+  background: var(--card);
+  border: 1px solid var(--line);
+  border-radius: var(--radius-sm);
+  padding: 0.7rem 0.9rem;
+  display: grid;
+  gap: 0.15rem;
+}
+
+.adm-stat-value {
+  font-size: 1.25rem;
+  font-weight: 700;
+}
+
+.adm-stat-label {
+  font-size: 0.78rem;
+  color: var(--muted);
+}
+
+.adm-list {
+  display: grid;
+  gap: 0.7rem;
+  margin-bottom: 1.5rem;
+}
+
+.adm-response summary {
+  display: grid;
+  gap: 0.35rem 0.75rem;
+  padding: 0.8rem 1rem;
+  cursor: pointer;
+  list-style: none;
+}
+
+.adm-response summary::-webkit-details-marker {
+  display: none;
+}
+
+.adm-response summary::after {
+  content: "?";
+  justify-self: end;
+  color: var(--muted);
+  transition: transform 0.2s ease;
+}
+
+.adm-response[open] summary::after {
+  transform: rotate(90deg);
+}
+
+.adm-response summary {
+  grid-template-columns: minmax(10rem, 1fr) auto auto 1rem;
+  align-items: center;
+}
+
+.adm-response-id {
+  font-weight: 700;
+  font-size: 0.95rem;
+}
+
+.adm-response-meta {
+  font-size: 0.82rem;
+  color: var(--muted);
+  text-align: right;
+}
+
+.adm-response-body {
+  border-top: 1px solid var(--line);
+  padding: 0.9rem 1rem;
+  display: grid;
+  gap: 0.9rem;
+}
+
+.adm-person {
+  border: 1px solid var(--line);
+  border-radius: var(--radius-sm);
+  padding: 0.8rem 0.95rem;
+}
+
+.adm-person-head {
+  display: flex;
+  align-items: center;
+  gap: 0.6rem;
+  margin-bottom: 0.55rem;
+}
+
+.adm-person-name {
+  font-weight: 700;
+}
+
+.adm-fields {
+  margin: 0;
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(11rem, 1fr));
+  gap: 0.45rem 1rem;
+}
+
+.adm-fields div {
+  min-width: 0;
+}
+
+.adm-fields dt {
+  font-size: 0.7rem;
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  color: var(--muted);
+  font-weight: 700;
+}
+
+.adm-fields dd {
+  margin: 0.1rem 0 0;
+  font-size: 0.9rem;
+  word-break: break-word;
+}
+
+.adm-foot {
+  font-size: 0.8rem;
+  color: var(--muted);
+}

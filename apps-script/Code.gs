@@ -11,6 +11,8 @@
 
 var SHEET_NAME = "Registrations";
 
+var ADMIN_KEY = "F27-yihqOrMReA9ong";
+
 var HEADERS = [
   "Received at",
   "Registration ID",
@@ -42,8 +44,79 @@ var HEADERS = [
   "Roommate name",
 ];
 
-function doGet() {
+function doGet(e) {
+  var params = e && e.parameter ? e.parameter : {};
+  if (params.view === "responses") return responsesView(params);
   return reply({ ok: true, service: "HTBB Focus 2027 registration endpoint" });
+}
+
+function responsesView(params) {
+  if (params.key !== ADMIN_KEY) {
+    return reply({ ok: false, error: "Invalid admin key." });
+  }
+  var sheet = getSheet();
+  ensureHeaders(sheet);
+  var last = sheet.getLastRow();
+  var values = last < 2 ? [] : sheet.getRange(2, 1, last - 1, HEADERS.length).getValues();
+
+  var byId = {};
+  var order = [];
+  for (var index = 0; index < values.length; index += 1) {
+    var row = values[index];
+    var registrationId = String(row[1]);
+    if (!registrationId) continue;
+    if (!byId[registrationId]) {
+      byId[registrationId] = {
+        registrationId: registrationId,
+        receivedAt: row[0],
+        camp: row[2],
+        modeLabel: row[3],
+        groupSize: Number(row[4]) || 0,
+        adults: Number(row[5]) || 0,
+        youths: Number(row[6]) || 0,
+        children: Number(row[7]) || 0,
+        formVersion: row[8],
+        submittedAt: row[9],
+        people: [],
+      };
+      order.push(registrationId);
+    }
+    byId[registrationId].people.push({
+      section: row[10],
+      name: row[11],
+      email: row[12],
+      idType: row[13],
+      idCountry: row[14],
+      idNumber: row[15],
+      dob: row[16],
+      gender: row[17],
+      phoneE164: row[19],
+      dietType: row[20],
+      dietNotes: row[21],
+      youthProgram: row[22],
+      chtbbProgram: row[23],
+      stayWith: row[24],
+      rooming: row[25],
+      roomingPref: row[26],
+      roommateName: row[27],
+    });
+  }
+
+  var responses = order.map(function (id) { return byId[id]; });
+  var totals = { campers: 0, adults: 0, youths: 0, children: 0 };
+  for (var index2 = 0; index2 < responses.length; index2 += 1) {
+    totals.campers += responses[index2].groupSize;
+    totals.adults += responses[index2].adults;
+    totals.youths += responses[index2].youths;
+    totals.children += responses[index2].children;
+  }
+
+  return reply({
+    ok: true,
+    generatedAt: new Date().toISOString(),
+    stats: { responses: responses.length, campers: totals.campers, adults: totals.adults, youths: totals.youths, children: totals.children },
+    responses: responses,
+  });
 }
 
 function doPost(e) {

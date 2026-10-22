@@ -1,0 +1,49 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Focus 2027 — Responses</title>
+  <meta name="robots" content="noindex, nofollow">
+  <link rel="icon" href="data:,">
+  <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+  <main class="wrap">
+    <header class="adm-head">
+      <div>
+        <p class="adm-eyebrow">Admin</p>
+        <h1 class="adm-title">Focus 2027 — Responses</h1>
+      </div>
+      <div class="adm-tools">
+        <input id="search" class="input" type="search" placeholder="Search name, IC, email or reference" aria-label="Search responses" hidden>
+        <button id="refresh" class="btn small" type="button" hidden>Refresh</button>
+      </div>
+    </header>
+
+    <p id="notice" class="adm-notice" role="status" hidden></p>
+
+    <form id="key-form" class="panel adm-key">
+      <label class="field-label" for="key-input">Admin key</label>
+      <div class="key-row">
+        <input id="key-input" class="input grow" type="password" autocomplete="off" placeholder="Paste the admin key">
+        <button class="btn primary" type="submit">Open responses</button>
+      </div>
+      <p class="adm-hint">The admin key is the <code>ADMIN_KEY</code> value at the top of the Apps Script (<code>Code.gs</code>).</p>
+    </form>
+
+    <section id="summary" class="adm-summary" hidden></section>
+    <section id="responses" class="adm-list" hidden></section>
+    <p id="footnote" class="adm-foot" hidden>Sourced live from the “Registrations” tab of the Google Sheet.</p>
+  </main>
+
+  <script>
+    if (location.protocol === "file:") {
+      var noticeBox = document.getElementById("notice");
+      noticeBox.hidden = false;
+      noticeBox.textContent = "This page was opened directly from the file system. Run start.bat and open http://localhost:5173/admin.html instead.";
+    }
+  </script>
+  <script type="module" src="./src/ui/admin.js"></script>
+</body>
+</html>

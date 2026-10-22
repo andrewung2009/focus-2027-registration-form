@@ -52,6 +52,15 @@ Registrations can be saved to a Google spreadsheet through Google Apps Script:
 
 The script appends one row per camper to a "Registrations" tab (created automatically), and ignores duplicate submission attempts with the same registration ID. If you edit the script later, update the deployment via **Deploy → Manage deployments → edit** so the same URL continues to work.
 
+## Admin responses page
+
+`admin.html` is an internal page that lists the saved registrations, Google-Forms style: summary totals, search and expandable per-response cards.
+
+1. After editing `apps-script/Code.gs`, redeploy it (**Deploy → Manage deployments → edit → New version**).
+2. Open `admin.html` (e.g. `http://localhost:5173/admin.html`), enter the `ADMIN_KEY` value from the top of `Code.gs`, then press **Open responses**. The key is remembered in the browser's localStorage; **Refresh** re-fetches the live sheet data.
+
+The page is not linked from the public form.
+
 ## Testing
 
 ```sh
@@ -65,6 +74,7 @@ Tests cover age banding, per-mode rules, and field validation, including the MyK
 | File | Purpose |
 | --- | --- |
 | `index.html` | Page shell and banner container |
+| `admin.html` | Internal responses viewer (Google-Forms style, requires the admin key) |
 | `styles.css` | All styling |
 | `config.js` | Camp details, cutoff date and submission endpoint |
 | `serve.js` | Local static server + registration receiver |
