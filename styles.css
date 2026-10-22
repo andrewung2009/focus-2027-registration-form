@@ -423,19 +423,6 @@ main.wrap {
   font-size: 1.05rem;
 }
 
-.count {
-  display: inline-grid;
-  place-items: center;
-  min-width: 1.5rem;
-  height: 1.5rem;
-  padding: 0 0.4rem;
-  border-radius: 999px;
-  background: var(--accent-soft);
-  color: var(--accent-strong);
-  font-size: 0.78rem;
-  font-weight: 700;
-}
-
 .panel-sub {
   margin-top: 0.2rem;
   font-size: 0.84rem;
@@ -711,9 +698,18 @@ textarea.input {
   outline-offset: 2px;
 }
 
+.segmented-sm {
+  flex-wrap: wrap;
+}
+
+.segmented-sm label {
+  flex: 1 1 auto;
+}
+
 .segmented-sm span {
   padding: 0.38rem 0.6rem;
   font-size: 0.82rem;
+  white-space: normal;
 }
 
 .roommate-options {
@@ -1051,12 +1047,6 @@ textarea.input {
   margin-top: 0.9rem;
 }
 
-.site-foot {
-  padding: 0 0 2.5rem;
-  font-size: 0.78rem;
-  color: var(--muted);
-}
-
 @media (max-width: 720px) {
   .person-grid {
     grid-template-columns: 1fr;
@@ -1138,7 +1128,6 @@ textarea.input {
   .review-actions,
   .submit-status,
   .btn,
-  .site-foot,
   .skip-link {
     display: none !important;
   }

@@ -291,7 +291,7 @@ export function renderSection(state, section) {
     <section class="panel section-${section.id}" data-panel="${section.id}" aria-labelledby="heading-${section.id}">
       <header class="panel-head">
         <div>
-          <h2 id="heading-${section.id}">${esc(section.plural)} <span class="count" data-count="${section.id}">${people.length}</span></h2>
+          <h2 id="heading-${section.id}">${esc(section.plural)}</h2>
           <p class="panel-sub">${esc(section.ages)}</p>
         </div>
       </header>
