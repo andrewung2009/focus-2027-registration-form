@@ -69,11 +69,10 @@ function renderCounts() {
   if (mode.sections.includes("child")) {
     parts.push(`<span><strong>${totals.child}</strong> ${totals.child === 1 ? "child" : "children"}</span>`);
   }
-  if (mode.minAdults > 1) {
-    parts.push(`<span class="count-note">Minimum ${mode.minAdults} adults</span>`);
-  }
   if (mode.adultCounts) {
     parts.push(`<span class="count-note">${mode.adultCounts.join(" or ")} adults</span>`);
+  } else if (mode.minAdults > 1) {
+    parts.push(`<span class="count-note">Exactly ${mode.minAdults} adult${mode.minAdults === 1 ? "" : "s"}</span>`);
   }
   if (mode.maxTotal) {
     parts.push(`<span class="count-note">Maximum ${mode.maxTotal} people</span>`);
