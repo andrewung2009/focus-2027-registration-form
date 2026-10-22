@@ -142,6 +142,6 @@ export function renderSuccess(result) {
         <h3>❓ Need Help or Changes?</h3>
         <p>If you have any urgent questions or need to make changes to your submission, please reach out to us at <a href="mailto:focus@htbb.org">focus@htbb.org</a>.</p>
       </div>
-      <button type="button" class="btn primary" data-reset>Register another group</button>
+      <button type="button" class="btn primary" data-reset>Submit another form</button>
     </section>`;
 }
