@@ -141,6 +141,113 @@ main.wrap {
   padding: 1.6rem 0 3rem;
 }
 
+.intro {
+  background: var(--card);
+  border: 1px solid var(--line);
+  border-radius: var(--radius);
+  box-shadow: var(--shadow);
+  padding: 1.5rem 1.6rem;
+  margin-bottom: 1.25rem;
+}
+
+.intro .eyebrow {
+  text-transform: uppercase;
+  letter-spacing: 0.16em;
+  font-size: 0.68rem;
+  font-weight: 700;
+  color: #5f8d82;
+  margin-bottom: 0.35rem;
+}
+
+.intro h2 {
+  font-size: 1.25rem;
+  margin-bottom: 0.5rem;
+}
+
+.intro-welcome {
+  font-size: 0.98rem;
+  color: #42504b;
+}
+
+.intro-facts {
+  list-style: none;
+  margin: 0.9rem 0 0;
+  padding: 0;
+  display: grid;
+  gap: 0.4rem;
+  font-size: 0.94rem;
+}
+
+.intro-facts strong {
+  font-weight: 650;
+}
+
+.intro-prices {
+  display: grid;
+  gap: 0.8rem;
+  margin-top: 1.1rem;
+  grid-template-columns: repeat(auto-fit, minmax(15rem, 1fr));
+}
+
+.price-group {
+  border: 1px solid var(--line);
+  border-radius: var(--radius-sm);
+  padding: 0.85rem 1rem;
+  background: #fbfaf6;
+}
+
+.price-group h3 {
+  font-size: 0.92rem;
+  margin-bottom: 0.45rem;
+}
+
+.price-group ul {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: grid;
+  gap: 0.25rem;
+  font-size: 0.9rem;
+  color: #42504b;
+}
+
+.intro-deadline {
+  margin-top: 1.1rem;
+  font-size: 0.94rem;
+}
+
+.intro-note {
+  margin-top: 0.6rem;
+  font-size: 0.86rem;
+  color: #5f6d67;
+}
+
+.intro-waiver {
+  margin-top: 0.95rem;
+  font-size: 0.9rem;
+  color: #42504b;
+}
+
+.intro-help {
+  margin-top: 1rem;
+  border-top: 1px dashed var(--line-strong);
+  padding-top: 0.85rem;
+}
+
+.intro-help h3 {
+  font-size: 0.92rem;
+  margin-bottom: 0.3rem;
+}
+
+.intro-help p {
+  font-size: 0.9rem;
+}
+
+.intro-help a {
+  color: var(--accent, #1d7a5f);
+  font-weight: 600;
+}
+
 .banner {
   margin-bottom: 1.1rem;
   padding: 0.85rem 1rem;
