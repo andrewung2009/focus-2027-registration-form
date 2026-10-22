@@ -57,9 +57,6 @@ function idField(person) {
 
 function dobField(person) {
   const display = person.dobDisplay || formatDisplayDate(person.dob);
-  const age = person.dob
-    ? `Age at ${CAMP.name} ${CAMP.year}: ${ageLabel(person.dob, CAMP.cutoffDate)}`
-    : `Age at ${CAMP.name} ${CAMP.year}: —`;
   return `
     <div class="field">
       <span class="field-label">Date of birth <span class="req">*</span></span>
@@ -73,7 +70,6 @@ function dobField(person) {
             min="1900-01-01" max="${CAMP.cutoffDate}" aria-label="Pick date of birth" tabindex="-1">
         </label>
       </div>
-      <p class="field-hint" data-age>${esc(age)}</p>
       <p class="field-error" data-error="dob"></p>
     </div>`;
 }
