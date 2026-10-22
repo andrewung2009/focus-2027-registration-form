@@ -117,15 +117,31 @@ export function renderReview(state, entries, counts) {
 }
 
 export function renderSuccess(result) {
-  const people = result.count === 1 ? "1 person" : `${result.count} people`;
   return `
     <section class="panel success-panel" aria-labelledby="success-heading">
       <div class="success-icon" aria-hidden="true">${CHECK_ICON}</div>
       <h2 class="success-heading" id="success-heading" tabindex="-1">Registration received</h2>
-      <p class="success-lede">Thank you. We have received ${esc(people)} for ${CAMP.name} ${CAMP.year}.</p>
+      <p class="success-lede">Thank you for registering for ${CAMP.name} ${CAMP.year}! We have successfully received your form submission and payment details.</p>
       <p class="ref-label">Your reference</p>
       <p class="ref-code">${esc(result.registrationId)}</p>
       <p class="review-note">Keep this reference. If you need to change or cancel this registration, contact the church office and quote it.</p>
+      <div class="success-next">
+        <h3>What&rsquo;s Next?</h3>
+        <div class="next-item">
+          <p class="next-title">1. Waiver &amp; Consent Forms</p>
+          <p>Please ensure everyone in your group completes the online Waiver &amp; Consent Form. Your registration status remains <strong>pending</strong> until forms are submitted for all campers.</p>
+          <p>🔗 <a href="https://forms.gle/Rn5F3EwvKCvXuUoK8" target="_blank" rel="noopener">Complete Waiver / Consent Form Here</a>.</p>
+          <p class="next-side">(If you registered adult friends in the group booking, please forward the link above to them so they can submit their individual waivers!)</p>
+        </div>
+        <div class="next-item">
+          <p class="next-title">2. Confirmation Email</p>
+          <p>Once verified, you will receive a confirmation email.</p>
+        </div>
+      </div>
+      <div class="success-help">
+        <h3>❓ Need Help or Changes?</h3>
+        <p>If you have any urgent questions or need to make changes to your submission, please reach out to us at <a href="mailto:focus@htbb.org">focus@htbb.org</a>.</p>
+      </div>
       <button type="button" class="btn primary" data-reset>Register another group</button>
     </section>`;
 }

@@ -988,6 +988,57 @@ textarea.input {
   margin-top: 0.9rem;
 }
 
+.success-next {
+  margin-top: 1.2rem;
+  padding: 1rem 1.1rem;
+  border: 1px solid var(--line);
+  border-radius: var(--radius-sm);
+  background: #fbfaf6;
+}
+
+.success-next h3 {
+  font-size: 1rem;
+  margin-bottom: 0.55rem;
+}
+
+.next-item + .next-item {
+  margin-top: 0.85rem;
+  padding-top: 0.85rem;
+  border-top: 1px dashed var(--line-strong);
+}
+
+.next-item p {
+  margin-bottom: 0.3rem;
+}
+
+.next-title {
+  font-weight: 700;
+}
+
+.next-side {
+  font-size: 0.82rem;
+  color: var(--muted);
+}
+
+.success-next a,
+.success-help a {
+  color: var(--accent);
+  font-weight: 650;
+}
+
+.success-help {
+  margin-top: 1rem;
+}
+
+.success-help h3 {
+  font-size: 0.98rem;
+  margin-bottom: 0.3rem;
+}
+
+.success-help p {
+  font-size: 0.94rem;
+}
+
 @media (max-width: 720px) {
   .person-grid {
     grid-template-columns: 1fr;
