@@ -1,6 +1,6 @@
 import { CAMP } from "../config.js";
 import { DIET_NOTES_REQUIRED, MODES, SECTIONS, modeById, sectionById } from "./schema.js";
-import { ageLabel, displayToISO, formatDisplayDate, formatDobTyping } from "./age.js";
+import { ageLabel, displayToISO, formatDobTyping } from "./age.js";
 import {
   allEntries,
   blankPerson,
@@ -192,9 +192,6 @@ function refreshCard(person) {
     if (errorElement) errorElement.textContent = "";
     card.querySelectorAll(`[data-field="${key}"]`).forEach((input) => input.removeAttribute("aria-invalid"));
   }
-
-  const picker = card.querySelector("[data-dob-picker]");
-  if (picker && picker.value !== (person.dob || "")) picker.value = person.dob || "";
 }
 
 function validateFieldUI(input) {
@@ -451,22 +448,6 @@ root.addEventListener("input", (event) => {
 });
 
 root.addEventListener("change", (event) => {
-  const picker = event.target.closest("[data-dob-picker]");
-  if (picker) {
-    const card = picker.closest("[data-person]");
-    const person = card ? findPerson(state, card.dataset.person) : null;
-    if (!person) return;
-    person.dob = picker.value;
-    person.dobDisplay = formatDisplayDate(picker.value);
-    const textInput = card.querySelector('[data-field="dob"]');
-    if (textInput) textInput.value = person.dobDisplay;
-    clearBanner();
-    const { key, message } = fieldError(person, "dob");
-    showFieldError(card, key, message);
-    refreshCard(person);
-    return;
-  }
-
   const modeInput = event.target.closest("[data-mode]");
   if (modeInput) {
     setMode(modeInput.value);

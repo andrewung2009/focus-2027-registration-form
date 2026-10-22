@@ -17,8 +17,6 @@ const option = (value, label, selected) => (
   `<option value="${esc(value)}"${selected === value ? " selected" : ""}>${esc(label)}</option>`
 );
 
-const CALENDAR_ICON = `<svg viewBox="0 0 24 24" width="18" height="18" aria-hidden="true" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"><rect x="3" y="5" width="18" height="16" rx="3"></rect><path d="M8 3v4M16 3v4M3 10h18"></path></svg>`;
-
 function nameField(person) {
   return `
     <label class="field field-span">
@@ -64,11 +62,6 @@ function dobField(person) {
         <input class="input grow" type="text" data-field="dob" value="${esc(display)}"
           autocomplete="bday" inputmode="numeric" maxlength="10" placeholder="dd/mm/yyyy"
           aria-label="Date of birth, dd/mm/yyyy">
-        <label class="date-pick" title="Pick a date">
-          ${CALENDAR_ICON}
-          <input type="date" class="date-pick-input" data-dob-picker value="${esc(person.dob)}"
-            min="1900-01-01" max="${CAMP.cutoffDate}" aria-label="Pick date of birth" tabindex="-1">
-        </label>
       </div>
       <p class="field-error" data-error="dob"></p>
     </div>`;
