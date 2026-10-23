@@ -50,6 +50,12 @@ var HEADERS = [
   "Proof file name",
   "Stay roommate preference",
   "Stay roommate name",
+  "Guardian name",
+  "Guardian email",
+  "Guardian ID type",
+  "Guardian ID country",
+  "Guardian ID number",
+  "Guardian contact number (E.164)",
 ];
 
 function doGet(e) {
@@ -182,6 +188,7 @@ function doPost(e) {
     proofUrl = proofLinks.join("\n");
     proofName = proofLabels.join("\n");
 
+    var guardian = payload.guardian || {};
     var rows = payload.people.map(function (person, personIndex) {
       var showCounts = personIndex === 0;
       return [
@@ -217,6 +224,12 @@ function doPost(e) {
         proofName,
         person.stayRoomPref || "",
         person.stayRoommateName || "",
+        guardian.name || "",
+        guardian.email || "",
+        guardian.idType || "",
+        guardian.idCountry || "",
+        guardian.idNumber || "",
+        guardian.phoneE164 || "",
       ];
     });
 

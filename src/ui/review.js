@@ -86,6 +86,31 @@ function personBlock(person, section, label) {
     </article>`;
 }
 
+function guardianBlock(guardian) {
+  const idText = guardian.idType === "passport"
+    ? `Passport · ${guardian.idCountry === "OT" ? (String(guardian.idCountryOther || "").trim() || "Other country") : guardian.idCountry ? getCountry(guardian.idCountry).name : "—"} · ${guardian.idNumber}`
+    : `${labelFor(ID_TYPES, guardian.idType)} · ${guardian.idNumber}`;
+  const rows = [
+    ["Email address", guardian.email],
+    ["IC / Passport", idText],
+    ["Contact number", toE164(guardian.phone, guardian.phoneCountry) || guardian.phone],
+  ];
+  return `
+    <section class="review-group" aria-labelledby="review-guardian">
+      <h3 class="review-group-head" id="review-guardian">Parent / Legal Guardian</h3>
+      <article class="review-person">
+        <div class="review-person-head"><strong>${esc(guardian.name)}</strong></div>
+        <dl class="review-grid">
+          ${rows.map(([term, value]) => `
+            <div>
+              <dt>${esc(term)}</dt>
+              <dd>${esc(value)}</dd>
+            </div>`).join("")}
+        </dl>
+      </article>
+    </section>`;
+}
+
 export function renderReview(state, entries, counts) {
   const mode = modeById(state.mode);
   const groups = ["adult", "youth", "child"].map((sectionId) => {
@@ -115,6 +140,7 @@ export function renderReview(state, entries, counts) {
       </header>
       <div class="panel-body">
         <p class="review-note">Check every detail below. If anything is wrong, go back and edit before submitting.</p>
+        ${mode.guardian && state.guardian ? guardianBlock(state.guardian) : ""}
         ${groups}
         ${(state.proof || []).length ? `
         <div class="review-proof">

@@ -67,7 +67,21 @@ export function buildPayload(state, entries, options = {}) {
     modeLabel: mode.label,
     counts,
     people,
+    guardian: mode.guardian ? buildGuardianPayload(state.guardian) : null,
     proof: buildProofPayloads(state.proof),
+  };
+}
+
+export function buildGuardianPayload(guardian) {
+  if (!guardian) return null;
+  const isPassport = guardian.idType === "passport";
+  return {
+    name: clean(guardian.name),
+    email: clean(guardian.email),
+    idType: isPassport ? "passport" : "mykad",
+    idCountry: isPassport ? (guardian.idCountry === "OT" ? clean(guardian.idCountryOther) : clean(guardian.idCountry)) : "",
+    idNumber: isPassport ? normalisePassport(guardian.idNumber) : normaliseMyKad(guardian.idNumber),
+    phoneE164: toE164(guardian.phone, guardian.phoneCountry),
   };
 }
 

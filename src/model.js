@@ -1,4 +1,4 @@
-import { SECTIONS, fieldsForMode, modeById } from "./schema.js";
+import { ROOM_GROUPS, SECTIONS, fieldsForMode, modeById } from "./schema.js";
 
 let sequence = 0;
 
@@ -35,6 +35,7 @@ export function createState() {
   return {
     mode: "family",
     proof: [],
+    guardian: blankPerson("adult"),
     people: {
       adult: [blankPerson("adult")],
       youth: [],
@@ -66,10 +67,7 @@ export function isBlank(person) {
 
 export function blankPersonFor(sectionId, mode) {
   const person = blankPerson(sectionId);
-  if (mode && mode.id === "youths" && sectionId === "youth") {
-    person.youthProgram = "yes";
-    person.stayWith = "other_youths";
-  }
+  if (mode && mode.locks && sectionId === "youth") Object.assign(person, mode.locks);
   return person;
 }
 
@@ -85,6 +83,9 @@ export function ensureMode(state) {
   while (state.people.youth.length < startYouths) {
     state.people.youth.push(blankPersonFor("youth", mode));
   }
+  if (mode.locks) {
+    for (const person of state.people.youth) Object.assign(person, mode.locks);
+  }
 }
 
 export function pruneBlank(state) {
@@ -95,7 +96,24 @@ export function pruneBlank(state) {
   if (!state.people.adult.length) state.people.adult.push(blankPerson("adult"));
 }
 
+export function roomGroupFor(state) {
+  const mode = modeById(state.mode);
+  if (mode.id === "friends") return visiblePeople(state, "adult").length >= 4 ? ROOM_GROUPS.suite4 : ROOM_GROUPS.twin2;
+  return ROOM_GROUPS.twin2;
+}
+
+export function normaliseRoomChoice(state) {
+  const lead = state.people.adult[0];
+  if (!lead) return;
+  if (lead.rooming && !roomGroupFor(state).includes(lead.rooming)) {
+    lead.rooming = "";
+    lead.roomingPref = "";
+    lead.roommateName = "";
+  }
+}
+
 export function findPerson(state, localId) {
+  if (state.guardian && state.guardian.localId === localId) return state.guardian;
   for (const list of Object.values(state.people)) {
     const found = list.find((person) => person.localId === localId);
     if (found) return found;

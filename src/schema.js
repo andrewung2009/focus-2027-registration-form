@@ -37,7 +37,7 @@ export const SECTIONS = [
     program: {
       field: "chtbbProgram",
       label: "Will this child be participating in the CHTBB Program?",
-      hint: "CHTBB is for children aged 1½ to 10 at Focus 2027.",
+      hint: "CHTBB is for children aged 1Â½ to 10 at Focus 2027.",
     },
   },
 ];
@@ -61,7 +61,7 @@ export const MODES = [
   {
     id: "couple",
     label: "Married couple",
-    hint: "2 adults · 1 male, 1 female",
+    hint: "2 adults Â· 1 male, 1 female",
     sections: ["adult"],
     startAdults: 2,
     minAdults: 2,
@@ -105,6 +105,8 @@ export const MODES = [
     removeAdults: false,
     startYouths: 1,
     maxTotal: 4,
+    guardian: true,
+    locks: { youthProgram: "yes", stayWith: "other_youths" },
   },
 ];
 
@@ -117,7 +119,7 @@ export function fieldsForMode(section, mode, isLead = false) {
   if (section.id === "adult" && isLead) {
     fields = ["name", "email", ...fields.filter((field) => field !== "name")];
   }
-  if (section.id === "adult" && mode.id === "self") {
+  if (section.id === "adult" && (mode.id === "self" || (isLead && (mode.id === "couple" || mode.id === "friends")))) {
     fields = [...fields, "rooming"];
   }
   return fields;
@@ -154,20 +156,52 @@ export const STAY_ROOM_OPTIONS = [
 ];
 
 export const ROOM_OPTIONS = [
-  { value: "twin", label: "Studio Twin: 2 Super Single Bed", short: "Studio Twin" },
-  { value: "single", label: "Studio King: 1 King Size Bed", short: "Studio King" },
+  {
+    value: "twin",
+    label: "Studio Twin: 2 Super Single Bed",
+    short: "Studio Twin",
+    image: "https://lh3.googleusercontent.com/d/1ttbu9d0LZHdw-zANSeMPPWADfZHhGxeR=w1200",
+  },
+  {
+    value: "single",
+    label: "Studio King: 1 King Size Bed",
+    short: "Studio King",
+    image: "https://lh3.googleusercontent.com/d/1II8xPjoZo90pajPgxnXwnE5oAiYaDKHn=w1200",
+  },
+  {
+    value: "double_queen",
+    label: "Studio Double Queen: 2 Queen Size Beds",
+    short: "Studio Double Queen",
+    image: "https://lh3.googleusercontent.com/d/1ixwlgdc6JEBxYggwSYcIBOss2nNqyvzU=w1200",
+  },
+  {
+    value: "double_twin_suite",
+    label: "Double Twin Suite: 4 Super Single Bed | 2 Bedrooms",
+    short: "Double Twin Suite",
+    image: "https://lh3.googleusercontent.com/d/1oMIi-Q98CS_xTzqb9I2OLQotFXvqrNcS=w1200",
+  },
+  {
+    value: "deluxe_suite",
+    label: "Deluxe Suite: 1 King Size Bed & 1 Queen Size Bed | 2 Bedrooms",
+    short: "Deluxe Suite",
+    image: "https://lh3.googleusercontent.com/d/1ZDgD1ZUw9dO7pZDoiNosAn8HYFNyG7y1=w1200",
+  },
+  {
+    value: "family_suite",
+    label: "Family Suite: 1 King Size Bed & 2 Super Single Bed on Tatami | 2 Bedrooms",
+    short: "Family Suite",
+    image: "https://lh3.googleusercontent.com/d/1eSasTPchCcxhaR9plRp-YCPEnbARhls5=w1200",
+  },
 ];
 
-export const ROOM_IMAGES = {
-  twin: {
-    src: "https://drive.google.com/thumbnail?id=1ttbu9d0LZHdw-zANSeMPPWADfZHhGxeR&sz=w1200",
-    alt: "Studio Twin room with two super single beds",
-  },
-  single: {
-    src: "https://drive.google.com/thumbnail?id=1II8xPjoZo90pajPgxnXwnE5oAiYaDKHn&sz=w1200",
-    alt: "Studio King room with one king size bed",
-  },
+export const ROOM_GROUPS = {
+  twin2: ["twin", "single"],
+  suite4: ["double_queen", "double_twin_suite", "deluxe_suite", "family_suite"],
 };
+
+export function roomOption(value) {
+  return ROOM_OPTIONS.find((option) => option.value === value) || null;
+}
 
 export const CAMP_LABEL = `${CAMP.name} ${CAMP.year}`;
 

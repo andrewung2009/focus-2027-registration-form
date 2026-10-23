@@ -110,6 +110,18 @@ test("youth-only mode shows only youths and seeds a defaulted youth", () => {
   assert.equal(modeById("youths").maxTotal, 4);
 });
 
+test("youth-only mode forces the programme and accommodation values", () => {
+  const state = createState();
+  state.people.youth.push({ ...blankPerson("youth"), name: "Teen", youthProgram: "no", stayWith: "family_room" });
+  state.mode = "youths";
+  pruneBlank(state);
+  ensureMode(state);
+  for (const youth of state.people.youth) {
+    assert.equal(youth.youthProgram, "yes");
+    assert.equal(youth.stayWith, "other_youths");
+  }
+});
+
 test("youth-only additions start with the programme and stay defaults", () => {
   const mode = modeById("youths");
   const youth = blankPersonFor("youth", mode);
@@ -120,11 +132,21 @@ test("youth-only additions start with the programme and stay defaults", () => {
   assert.equal(adult.stayWith, "");
 });
 
-test("family and couple registrations do not collect room preferences", () => {
+test("family does not collect room preference but couples and friends do", () => {
   const state = createState();
-  const familyEntries = allEntries(state);
-  assert.ok(!familyEntries[0].fields.includes("rooming"));
+  assert.ok(!allEntries(state)[0].fields.includes("rooming"));
 
   state.mode = "couple";
-  assert.ok(!allEntries(state)[0].fields.includes("rooming"));
+  pruneBlank(state);
+  ensureMode(state);
+  const couple = allEntries(state);
+  assert.ok(couple[0].fields.includes("rooming"));
+  assert.ok(!couple[1].fields.includes("rooming"));
+
+  state.mode = "friends";
+  pruneBlank(state);
+  ensureMode(state);
+  const friends = allEntries(state);
+  assert.ok(friends[0].fields.includes("rooming"));
+  assert.ok(!friends[1].fields.includes("rooming"));
 });

@@ -381,22 +381,30 @@ main.wrap {
   border-radius: 6px;
 }
 
-.form-note {
-  margin: 0 0 0.9rem;
-  padding: 0.7rem 0.9rem;
-  font-size: 0.85rem;
+.segmented .is-selected {
+  flex: 1 1 0;
+  display: block;
+  padding: 0.42rem 0.6rem;
+  text-align: center;
+  font-size: 0.82rem;
   font-weight: 600;
-  line-height: 1.5;
-  color: #33413b;
-  background: var(--card-soft);
-  border-left: 3px solid var(--accent);
-  border-radius: 6px;
+  color: var(--accent);
+  background: #e6f2f0;
+  border: 1px solid var(--accent);
+  border-radius: 999px;
+  box-shadow: var(--shadow-sm);
+  cursor: default;
 }
 
 .panel-body {
   padding: 1.1rem 1.25rem 1.25rem;
   display: grid;
   gap: 1rem;
+}
+
+.group-size {
+  display: grid;
+  gap: 0.4rem;
 }
 
 .person-card {
@@ -667,14 +675,6 @@ textarea.input {
   border: 1px solid var(--line);
   border-radius: 8px;
   background: var(--card-soft);
-}
-
-.room-photo figcaption {
-  margin-top: 0.3rem;
-  font-size: 0.76rem;
-  font-weight: 650;
-  color: var(--muted);
-  text-align: center;
 }
 
 @media (max-width: 480px) {

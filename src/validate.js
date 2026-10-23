@@ -7,10 +7,12 @@ import {
   GENDERS,
   STAY_OPTIONS,
   modeById,
+  roomOption,
   sectionById,
 } from "./schema.js";
 
 const NAME_RE = /^[\p{L}\p{M}][\p{L}\p{M} .'@-]*$/u;
+const GUARDIAN_FIELDS = ["name", "email", "id", "phone"];
 const PASSPORT_RE = /^[A-Z0-9]{6,12}$/;
 const DISPLAY_DATE_RE = /^(\d{2})\/(\d{2})\/(\d{4})$/;
 
@@ -223,7 +225,7 @@ export function validateStayRoomPref(value) {
 }
 
 export function validateRooming(value) {
-  if (value !== "twin" && value !== "single") return "Select a room option.";
+  if (!roomOption(value)) return "Select a room option.";
   return null;
 }
 
@@ -277,6 +279,7 @@ export function validatePerson(person, options = {}) {
   const sectionId = options.section || person.section;
   const section = sectionById(sectionId);
   const fields = options.fields || section.fields;
+  const requireRoommate = options.mode ? options.mode.id === "self" : true;
   const errors = {};
 
   if (fields.includes("name")) {
@@ -343,7 +346,7 @@ export function validatePerson(person, options = {}) {
   if (fields.includes("rooming")) {
     const roomMessage = validateRooming(person.rooming);
     if (roomMessage) errors.rooming = roomMessage;
-    else if (person.rooming === "twin") {
+    else if (person.rooming === "twin" && requireRoommate) {
       const prefMessage = validateRoomingPref(person.roomingPref);
       if (prefMessage) errors.roomingPref = prefMessage;
       if (person.roomingPref === "specify") {
@@ -442,6 +445,7 @@ export function validateRegistration(state, entries) {
     results[entry.person.localId] = validatePerson(entry.person, {
       section: entry.section,
       fields: entry.fields,
+      mode: modeById(state?.mode),
     });
   }
 
@@ -506,6 +510,13 @@ export function validateRegistration(state, entries) {
         if (result) result.ok = false;
       }
     }
+  }
+
+  if (mode.guardian && state?.guardian) {
+    const guardian = state.guardian;
+    const result = validatePerson(guardian, { section: "adult", fields: GUARDIAN_FIELDS });
+    results[guardian.localId] = result;
+    if (!result.ok) formErrors.push("Complete the parent or legal guardian details before submitting.");
   }
 
   const ok = formErrors.length === 0 && Object.values(results).every((result) => result.ok);

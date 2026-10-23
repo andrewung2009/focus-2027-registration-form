@@ -26,6 +26,7 @@ import {
   validateProofList,
   validateProgram,
   validateRegistration,
+  validateRooming,
   validateStay,
   validateStayRoomPref,
 } from "../src/validate.js";
@@ -310,6 +311,29 @@ test("passport adults must pick an issuing country before checking", () => {
   assert.ok(!errors.idNumber);
 });
 
+test("room selection accepts the suite options used by four-pax groups", () => {
+  for (const value of ["double_queen", "double_twin_suite", "deluxe_suite", "family_suite"]) {
+    assert.equal(validateRooming(value), null, value);
+  }
+  assert.match(validateRooming("bungalow"), /room option/i);
+});
+
+test("couples and friends do not need a roommate option", () => {
+  const couple = validatePerson(adult({ rooming: "twin", roomingPref: "", roommateName: "" }), {
+    section: "adult",
+    fields: [...ADULT_FIELDS, "rooming"],
+    mode: modeById("couple"),
+  });
+  assert.equal(couple.ok, true);
+
+  const friends = validatePerson(adult({ rooming: "double_queen", roomingPref: "", roommateName: "" }), {
+    section: "adult",
+    fields: [...ADULT_FIELDS, "rooming"],
+    mode: modeById("friends"),
+  });
+  assert.equal(friends.ok, true);
+});
+
 test("self mode adults must answer the room selection", () => {
   const { errors } = validatePerson(adult({ rooming: "", roomingPref: "", roommateName: "" }), {
     section: "adult",
@@ -451,6 +475,29 @@ test("the same IC number cannot be used twice", () => {
   assert.equal(result.ok, false);
   const flagged = Object.values(result.results).filter((person) => /already used/i.test(person.errors.idNumber || ""));
   assert.equal(flagged.length, 2);
+});
+
+test("youth-only registrations need a complete parent or legal guardian", () => {
+  const teen = youth({ stayRoomPref: "none" });
+  const blankGuardian = blankPerson("adult");
+  const missing = validateRegistration({ mode: "youths", guardian: blankGuardian }, completeEntries([teen]));
+  assert.equal(missing.ok, false);
+  assert.ok(missing.formErrors.some((message) => /parent or legal guardian/i.test(message)));
+  assert.ok(missing.results[blankGuardian.localId].errors.name);
+  assert.ok(missing.results[blankGuardian.localId].errors.email);
+
+  const guardian = {
+    ...blankPerson("adult"),
+    name: "Lim Ah Kow",
+    email: "guardian@example.com",
+    idType: "mykad",
+    idNumber: "800101145678",
+    phone: "123456789",
+    phoneCountry: "MY",
+  };
+  const complete = validateRegistration({ mode: "youths", guardian }, completeEntries([teen]));
+  assert.equal(complete.ok, true);
+  assert.deepEqual(complete.formErrors, []);
 });
 
 test("youth and child entries validate through the same pipeline", () => {

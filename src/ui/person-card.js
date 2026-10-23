@@ -7,12 +7,12 @@ import {
   DIET_OPTIONS,
   GENDERS,
   ID_TYPES,
-  ROOM_IMAGES,
-  ROOM_OPTIONS,
+  ROOM_GROUPS,
   STAY_OPTIONS,
   STAY_ROOM_OPTIONS,
   fieldsForMode,
   modeById,
+  roomOption,
 } from "../schema.js";
 import { esc } from "./escape.js";
 
@@ -127,12 +127,14 @@ function dietFields(person) {
     </label>`;
 }
 
-function programField(person, section) {
+const PROGRAM_LABELS = { yes: "Yes", no: "No" };
+
+function programField(person, section, locks) {
   const { field, label, hint } = section.program;
-  return `
-    <fieldset class="field field-span">
-      <legend class="field-label">${esc(label)} <span class="req">*</span></legend>
-      <div class="segmented segmented-sm">
+  const locked = locks && locks[field] !== undefined;
+  const choices = locked
+    ? `<span class="is-selected" role="radio" aria-checked="true">${esc(PROGRAM_LABELS[locks[field]])}</span>`
+    : `
         <label>
           <input type="radio" name="${field}-${person.localId}" value="yes"
             data-field="${field}" ${person[field] === "yes" ? "checked" : ""}>
@@ -142,27 +144,35 @@ function programField(person, section) {
           <input type="radio" name="${field}-${person.localId}" value="no"
             data-field="${field}" ${person[field] === "no" ? "checked" : ""}>
           <span>No</span>
-        </label>
-      </div>
+        </label>`;
+  return `
+    <fieldset class="field field-span">
+      <legend class="field-label">${esc(label)} <span class="req">*</span></legend>
+      <div class="segmented segmented-sm">${choices}</div>
       ${hint ? `<p class="field-hint">${esc(hint)}</p>` : ""}
       <p class="field-error" data-error="${field}"></p>
     </fieldset>`;
 }
 
-function stayField(person) {
+function stayField(person, locks) {
   const otherYouths = person.stayWith === "other_youths";
   const specify = person.stayRoomPref === "specify";
-  return `
-    <fieldset class="field field-span">
-      <legend class="field-label">Accommodation Preference <span class="req">*</span></legend>
-      <div class="segmented segmented-sm">
-        ${STAY_OPTIONS.map((stay) => `
+  const locked = locks && locks.stayWith !== undefined;
+  const choices = locked
+    ? STAY_OPTIONS
+        .filter((stay) => stay.value === locks.stayWith)
+        .map((stay) => `<span class="is-selected" role="radio" aria-checked="true">${esc(stay.label)}</span>`)
+        .join("")
+    : STAY_OPTIONS.map((stay) => `
           <label>
             <input type="radio" name="stayWith-${person.localId}" value="${stay.value}"
               data-field="stayWith" ${person.stayWith === stay.value ? "checked" : ""}>
             <span>${esc(stay.label)}</span>
-          </label>`).join("")}
-      </div>
+          </label>`).join("");
+  return `
+    <fieldset class="field field-span">
+      <legend class="field-label">Accommodation Preference <span class="req">*</span></legend>
+      <div class="segmented segmented-sm">${choices}</div>
       <p class="field-error" data-error="stayWith"></p>
     </fieldset>
     <fieldset class="field field-span" data-stay-choose ${otherYouths ? "" : "hidden"}>
@@ -189,36 +199,28 @@ function stayField(person) {
     </fieldset>`;
 }
 
-function roomingFields(person) {
-  const twin = person.rooming === "twin";
-  const specify = person.roomingPref === "specify";
+const ROOM_LINK = '<a href="https://amvertoncove.com/our-rooms" target="_blank" rel="noopener">amvertoncove.com/our-rooms</a>';
+const ROOM_DISCLAIMER = "While we make every effort to accommodate your room preference, final assignments remain at the discretion of the Focus Team to ensure all participants are safely and comfortably accommodated within venue capacity.";
+
+function roomCopy(mode, suiteGroup) {
+  if (mode === "self") {
+    return [
+      `If you select Studio King: 1 King Size Bed, you will have the room to yourself. Please note that single occupancy requires paying the full 2-pax rate to cover total room costs. To view room layouts, visit ${ROOM_LINK}.`,
+      ROOM_DISCLAIMER,
+    ];
+  }
+  if (suiteGroup) {
+    return [
+      `To view room layouts, visit ${ROOM_LINK}.`,
+      `Please note that Double Twin Suite and Deluxe Suite are available in limited numbers. ${ROOM_DISCLAIMER}`,
+    ];
+  }
+  return [`To view room layouts, visit ${ROOM_LINK}.`, ROOM_DISCLAIMER];
+}
+
+function roommateChoice(person, specify) {
   return `
-    <fieldset class="field field-span">
-      <legend class="field-label">Room preference <span class="req">*</span></legend>
-      <p class="field-hint">If you select Studio King: 1 King Size Bed, you will have the room to yourself. Please note that single occupancy requires paying the full 2-pax rate to cover total room costs. To view room layouts, visit <a href="https://amvertoncove.com/our-rooms" target="_blank" rel="noopener">amvertoncove.com/our-rooms</a>.</p>
-      <p class="field-hint">While we make every effort to accommodate your room preference, final assignments remain at the discretion of the Focus Team to ensure all participants are safely and comfortably accommodated within venue capacity.</p>
-      <div class="segmented segmented-sm">
-        ${ROOM_OPTIONS.map((option) => `
-          <label>
-            <input type="radio" name="rooming-${person.localId}" value="${option.value}"
-              data-field="rooming" ${person.rooming === option.value ? "checked" : ""}>
-            <span>${esc(option.label)}</span>
-          </label>`).join("")}
-      </div>
-      <div class="room-photos">
-        ${ROOM_OPTIONS.map((option) => {
-          const image = ROOM_IMAGES[option.value];
-          if (!image) return "";
-          return `
-            <figure class="room-photo">
-              <img src="${esc(image.src)}" alt="${esc(image.alt)}" loading="lazy">
-              <figcaption>${esc(option.short)}</figcaption>
-            </figure>`;
-        }).join("")}
-      </div>
-      <p class="field-error" data-error="rooming"></p>
-    </fieldset>
-    <fieldset class="field field-span" data-rooming-choose ${twin ? "" : "hidden"}>
+    <fieldset class="field field-span" data-rooming-choose ${person.rooming === "twin" ? "" : "hidden"}>
       <legend class="field-label">Studio Twin — pick a roommate option <span class="req">*</span></legend>
       <div class="roommate-options">
         <div class="roommate-line">
@@ -241,6 +243,40 @@ function roomingFields(person) {
     </fieldset>`;
 }
 
+function roomingFields(person, mode = "self", adultCount = 1) {
+  const isSelf = mode === "self";
+  const suiteGroup = mode === "friends" && adultCount >= 4;
+  const values = suiteGroup ? ROOM_GROUPS.suite4 : ROOM_GROUPS.twin2;
+  const options = values.map(roomOption).filter(Boolean);
+  const specify = person.roomingPref === "specify";
+  const copy = roomCopy(mode, suiteGroup).map((paragraph) => `<p class="field-hint">${paragraph}</p>`).join("");
+
+  const choices = options.map((option) => `
+    <label>
+      <input type="radio" name="rooming-${person.localId}" value="${option.value}"
+        data-field="rooming" ${person.rooming === option.value ? "checked" : ""}>
+      <span>${esc(option.label)}</span>
+    </label>`).join("");
+  const seenImages = new Set();
+  const gallery = options.filter((option) => {
+    if (!option.image || seenImages.has(option.image)) return false;
+    seenImages.add(option.image);
+    return true;
+  }).map((option) => `
+    <figure class="room-photo">
+      <img src="${esc(option.image)}" alt="${esc(option.label)}" loading="lazy">
+    </figure>`).join("");
+  return `
+    <fieldset class="field field-span">
+      <legend class="field-label">Room preference <span class="req">*</span></legend>
+      ${copy}
+      <div class="segmented segmented-sm">${choices}</div>
+      <div class="room-photos">${gallery}</div>
+      <p class="field-error" data-error="rooming"></p>
+    </fieldset>
+    ${isSelf ? roommateChoice(person, specify) : ""}`;
+}
+
 function emailField(person) {
   return `
     <label class="field field-span">
@@ -252,7 +288,7 @@ function emailField(person) {
     </label>`;
 }
 
-function fieldsFor(person, section, fieldIds) {
+function fieldsFor(person, section, fieldIds, options = {}) {
   return fieldIds.map((field) => {
     switch (field) {
       case "name": return nameField(person);
@@ -262,9 +298,9 @@ function fieldsFor(person, section, fieldIds) {
       case "gender": return genderField(person);
       case "phone": return phoneField(person);
       case "diet": return dietFields(person);
-      case "program": return programField(person, section);
-      case "stay": return stayField(person);
-      case "rooming": return roomingFields(person);
+      case "program": return programField(person, section, options.locks);
+      case "stay": return stayField(person, options.locks);
+      case "rooming": return roomingFields(person, options.mode, options.adultCount);
       default: return "";
     }
   }).join("");
@@ -289,9 +325,30 @@ export function renderPersonCard(person, section, index, options = {}) {
       ${section.id === "adult" ? `<p class="card-note fee-note" data-fee-note${paysYouthFee(person.dob) ? "" : " hidden"}>Note: this person will pay the youth camp fee for Focus 2027.</p>` : ""}
       <p class="card-alert" data-alert hidden></p>
       <div class="person-grid">
-        ${fieldsFor(person, section, options.fields || section.fields)}
+        ${fieldsFor(person, section, options.fields || section.fields, options)}
       </div>
     </article>`;
+}
+
+function renderGuardianPanel(guardian) {
+  return `
+    <section class="panel section-adult guardian-panel" data-panel="guardian" aria-labelledby="heading-guardian">
+      <header class="panel-head">
+        <div>
+          <h2 id="heading-guardian">Parent / Legal Guardian</h2>
+        </div>
+      </header>
+      <div class="panel-body">
+        <article class="person-card section-adult" data-person="${guardian.localId}" data-section="guardian">
+          <div class="person-grid">
+            ${nameField(guardian)}
+            ${emailField(guardian)}
+            ${idField(guardian)}
+            ${phoneField(guardian)}
+          </div>
+        </article>
+      </div>
+    </section>`;
 }
 
 export function renderSection(state, section) {
@@ -302,14 +359,18 @@ export function renderSection(state, section) {
   const atTotalCap = mode.maxTotal !== null && mode.maxTotal !== undefined && total >= mode.maxTotal;
   const atAdultCap = section.id === "adult"
     && mode.maxAdults !== null && mode.maxAdults !== undefined && people.length >= mode.maxAdults;
-  const addable = (section.id === "adult" ? mode.addAdults : true) && !atTotalCap && !atAdultCap;
+  const groupSizeControls = mode.id === "friends" && section.id === "adult";
+  const addable = (section.id === "adult" ? mode.addAdults : true) && !atTotalCap && !atAdultCap && !groupSizeControls;
   const canRemove = section.id === "adult"
-    ? mode.removeAdults && people.length > mode.minAdults
+    ? mode.removeAdults && people.length > mode.minAdults && !groupSizeControls
     : people.length > 0;
   const cards = people.map((person, index) => renderPersonCard(person, section, index, {
     canRemove,
     fields: fieldsForMode(section, mode, section.id === "adult" && index === 0),
     label: mode.maxAdults === 1 ? `${section.label} registration` : `${section.label} ${index + 1}`,
+    locks: section.id === "youth" ? mode.locks : undefined,
+    mode: mode.id,
+    adultCount: section.id === "adult" ? people.length : 0,
   })).join("");
   const empty = !people.length ? `
     <p class="empty-state">No ${(section.heading || section.plural).toLowerCase()} added yet.</p>` : "";
@@ -320,12 +381,27 @@ export function renderSection(state, section) {
       <button type="button" class="btn small" data-add="${section.id}">${esc(people.length ? section.addLabel : section.firstAddLabel || section.addLabel)}</button>
     </div>` : "";
 
-  const guardianNote = mode.id === "youths" && section.id === "youth"
-    ? '<p class="form-note">This form must be completed by an adult (parent or legal guardian).</p>'
+  const guardianPanel = mode.guardian && section.id === "youth" && state.guardian
+    ? renderGuardianPanel(state.guardian)
     : "";
 
+  const groupSizeControl = groupSizeControls ? `
+    <div class="group-size">
+      <span class="field-label">Group size <span class="req">*</span></span>
+      <div class="segmented segmented-sm">
+        <label>
+          <input type="radio" name="groupSize" value="2" data-group-size ${people.length <= 2 ? "checked" : ""}>
+          <span>2 adults</span>
+        </label>
+        <label>
+          <input type="radio" name="groupSize" value="4" data-group-size ${people.length >= 4 ? "checked" : ""}>
+          <span>4 adults</span>
+        </label>
+      </div>
+    </div>` : "";
+
   return `
-    ${guardianNote}
+    ${guardianPanel}
     <section class="panel section-${section.id}" data-panel="${section.id}" aria-labelledby="heading-${section.id}">
       <header class="panel-head">
         <div>
@@ -334,6 +410,7 @@ export function renderSection(state, section) {
         </div>
       </header>
       <div class="panel-body">
+        ${groupSizeControl}
         ${cards}
         ${empty}
         ${capNote}

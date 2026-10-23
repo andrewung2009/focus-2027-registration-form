@@ -8,6 +8,7 @@ import {
   createState,
   ensureMode,
   findPerson,
+  normaliseRoomChoice,
   pruneBlank,
   visiblePeople,
 } from "./model.js";
@@ -287,6 +288,7 @@ function addPerson(sectionId) {
 
   const person = blankPersonFor(sectionId, mode);
   state.people[sectionId].push(person);
+  normaliseRoomChoice(state);
   clearBanner();
   render();
   const card = root.querySelector(`[data-person="${person.localId}"]`);
@@ -294,6 +296,16 @@ function addPerson(sectionId) {
     card.scrollIntoView({ behavior: "smooth", block: "center" });
     card.querySelector('[data-field="name"]')?.focus({ preventScroll: true });
   }
+}
+
+function setGroupSize(size) {
+  const mode = modeById(state.mode);
+  const list = state.people.adult;
+  while (list.length < size) list.push(blankPersonFor("adult", mode));
+  if (list.length > size) list.splice(size);
+  normaliseRoomChoice(state);
+  clearBanner();
+  render();
 }
 
 function removePerson(localId) {
@@ -306,6 +318,7 @@ function removePerson(localId) {
       if (list.length <= mode.minAdults) return;
     }
     list.splice(index, 1);
+    normaliseRoomChoice(state);
     clearBanner();
     render();
     return;
@@ -317,6 +330,7 @@ function setMode(modeId) {
   state.mode = modeId;
   pruneBlank(state);
   ensureMode(state);
+  normaliseRoomChoice(state);
   clearBanner();
   render();
 }
@@ -566,6 +580,12 @@ root.addEventListener("change", (event) => {
   const modeInput = event.target.closest("[data-mode]");
   if (modeInput) {
     setMode(modeInput.value);
+    return;
+  }
+
+  const groupSizeInput = event.target.closest("[data-group-size]");
+  if (groupSizeInput) {
+    setGroupSize(Number(groupSizeInput.value));
     return;
   }
 
