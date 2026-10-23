@@ -1,4 +1,4 @@
-import { CAMP } from "../config.js";
+import { CAMP, PAYMENT } from "../config.js";
 import { DIET_NOTES_REQUIRED, MODES, SECTIONS, modeById, sectionById } from "./schema.js";
 import { ageLabel, displayToISO, formatDobTyping } from "./age.js";
 import {
@@ -12,6 +12,7 @@ import {
   visiblePeople,
 } from "./model.js";
 import { renderSection } from "./ui/person-card.js";
+import { renderProofPanel, formatBytes } from "./ui/proof.js";
 import { renderReview, renderSuccess } from "./ui/review.js";
 import { buildPayload, buildRegistrationId, sendRegistration } from "./submit.js";
 import {
@@ -19,6 +20,7 @@ import {
   formatMyKadTyping,
   sectionMismatchFor,
   validatePerson,
+  validateProof,
   validateRegistration,
 } from "./validate.js";
 
@@ -104,6 +106,7 @@ function render() {
   root.innerHTML = [
     renderModeBar(),
     visibleSections().map((section) => renderSection(state, section)).join(""),
+    renderProofPanel(state.proof, PAYMENT),
     renderActionBar(),
   ].join("");
 }
@@ -341,10 +344,71 @@ function showValidationErrors(entries, results, formErrors) {
   }
 }
 
+function setProofError(message) {
+  const proofError = root.querySelector('[data-error="proof"]');
+  if (proofError) proofError.textContent = message || "";
+}
+
+function syncProofPanel() {
+  const fileBox = root.querySelector("[data-proof-file]");
+  if (!fileBox) return;
+  const proof = state.proof;
+  fileBox.hidden = !proof;
+  const name = fileBox.querySelector("[data-proof-file-name]");
+  const size = fileBox.querySelector("[data-proof-file-size]");
+  if (name) name.textContent = proof ? proof.name : "";
+  if (size) size.textContent = proof ? formatBytes(proof.size) : "";
+}
+
+function readAsDataURL(file) {
+  return new Promise((resolve, reject) => {
+    const reader = new FileReader();
+    reader.onload = () => resolve(String(reader.result || ""));
+    reader.onerror = () => reject(new Error("read failed"));
+    reader.readAsDataURL(file);
+  });
+}
+
+async function handleProofFile(file) {
+  clearBanner();
+  setProofError("");
+  if (!file) {
+    return;
+  }
+  const early = validateProof({ name: file.name, mimeType: file.type, size: file.size });
+  if (early) {
+    state.proof = null;
+    syncProofPanel();
+    setProofError(early);
+    return;
+  }
+  try {
+    const dataUrl = await readAsDataURL(file);
+    const data = dataUrl.split(",")[1] || "";
+    if (!data) throw new Error("empty data url");
+    state.proof = { name: file.name, mimeType: file.type, size: file.size, data };
+    syncProofPanel();
+    clearBanner();
+  } catch {
+    state.proof = null;
+    syncProofPanel();
+    setProofError("The file could not be read. Pick it again or try a different file.");
+  }
+}
+
 function goReview() {
   const { entries, ok, results, formErrors } = validateForm();
   if (!ok) {
     showValidationErrors(entries, results, formErrors);
+    return;
+  }
+
+  const proofError = validateProof(state.proof);
+  if (proofError) {
+    showBanner("error", proofError);
+    setProofError(proofError);
+    root.querySelector("[data-proof-panel]")?.scrollIntoView({ behavior: "smooth", block: "center" });
+    root.querySelector("[data-proof-input]")?.focus({ preventScroll: true });
     return;
   }
 
@@ -373,7 +437,7 @@ async function submitRegistration() {
   }
 
   const payload = buildPayload(state, allEntries(state), { registrationId });
-  const result = await sendRegistration(payload);
+  const result = await sendRegistration(payload, payload.proof ? { timeoutMs: 90000 } : {});
   submitting = false;
 
   if (!result.ok) {
@@ -397,6 +461,7 @@ async function submitRegistration() {
 function resetRegistration() {
   const fresh = createState();
   state.mode = fresh.mode;
+  state.proof = null;
   state.people = fresh.people;
   registrationId = "";
   lastResult = null;
@@ -448,6 +513,13 @@ root.addEventListener("input", (event) => {
 });
 
 root.addEventListener("change", (event) => {
+  const proofInput = event.target.closest("[data-proof-input]");
+  if (proofInput) {
+    handleProofFile(proofInput.files && proofInput.files[0]);
+    proofInput.value = "";
+    return;
+  }
+
   const modeInput = event.target.closest("[data-mode]");
   if (modeInput) {
     setMode(modeInput.value);
@@ -526,6 +598,14 @@ root.addEventListener("click", (event) => {
   if (removeButton) {
     const card = removeButton.closest("[data-person]");
     if (card) removePerson(card.dataset.person);
+    return;
+  }
+
+  if (event.target.closest("[data-proof-remove]")) {
+    state.proof = null;
+    syncProofPanel();
+    setProofError("");
+    clearBanner();
     return;
   }
 

@@ -8,6 +8,7 @@ import {
   modeById,
 } from "../schema.js";
 import { getCountry, toE164 } from "../validate.js";
+import { formatBytes } from "./proof.js";
 import { esc } from "./escape.js";
 
 const CHECK_ICON = `<svg viewBox="0 0 24 24" width="34" height="34" aria-hidden="true" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6 9 17l-5-5"></path></svg>`;
@@ -106,6 +107,11 @@ export function renderReview(state, entries, counts) {
       <div class="panel-body">
         <p class="review-note">Check every detail below. If anything is wrong, go back and edit before submitting.</p>
         ${groups}
+        ${state.proof ? `
+        <div class="review-proof">
+          <h3 class="review-group-head">Proof of payment</h3>
+          <p>Attached receipt: <strong>${esc(state.proof.name)}</strong> (${esc(formatBytes(state.proof.size))}).</p>
+        </div>` : ""}
         <div class="review-actions">
           <button type="button" class="btn" data-edit>Back to edit</button>
           <button type="button" class="btn primary" data-submit>Submit</button>

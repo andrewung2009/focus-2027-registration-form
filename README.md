@@ -16,6 +16,7 @@ A self-contained registration form for the Focus 2027 camp. Built with plain HTM
   - Date of birth bands (adult / youth / child) that keep each person in the correct section
   - CHTBB age limits (1–10) and youth program questions
 - Email address collected for the first adult only
+- Required proof of payment upload for the whole registration: one JPG or PDF receipt, up to 10 MB, saved to a Google Drive "Focus 2027 Proof of Payment" folder and linked in the sheet; payment details live in `PAYMENT` in `config.js`
 - Room selection for solo registrations, with an inline "I would like to room with ___" field; choosing "Assign me a roommate" clears the typed name
 - Duplicate IC/passport detection across people in one registration
 - Review page, success page with a reference code, and "Register another group" reset

@@ -7,6 +7,14 @@ export const CAMP = {
   endpoint: "https://script.google.com/macros/s/AKfycbzsl_6pNNWXjnc3tr8Hq1h5SihG0a5weH7zmf-8l_AdJ0LWeZxhyi1CS9fMgUv_L1uUcA/exec",
 };
 
+export const PAYMENT = {
+  bank: "Maybank",
+  account: "5123 4567 8901",
+  accountName: "Holy Trinity Bukit Bintang",
+  reference: "Focus 2027",
+  note: "Attach the banking receipt (screenshot or PDF) for your camp fees below.",
+};
+
 export const CUTOFF_DATE = CAMP.cutoffDate;
 
 export const AGE_BANDS = {

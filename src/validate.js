@@ -454,3 +454,27 @@ export function validateRegistration(state, entries) {
   const ok = formErrors.length === 0 && Object.values(results).every((result) => result.ok);
   return { ok, results, formErrors };
 }
+
+export const PROOF_MAX_BYTES = 10 * 1024 * 1024;
+
+function proofKind(proof) {
+  const name = String(proof?.name || "");
+  if (!name) return "";
+  const ext = name.toLowerCase().split(".").pop();
+  const mime = String(proof?.mimeType || "").toLowerCase();
+  const mimeAllowsPdf = !mime || mime === "application/pdf";
+  const mimeAllowsJpg = !mime || mime === "image/jpeg";
+  if (ext === "pdf" && mimeAllowsPdf) return "pdf";
+  if ((ext === "jpg" || ext === "jpeg") && mimeAllowsJpg) return "jpg";
+  if (mime === "application/pdf" && ext === "pdf") return "pdf";
+  if (mime === "image/jpeg" && (ext === "jpg" || ext === "jpeg")) return "jpg";
+  return "";
+}
+
+export function validateProof(proof) {
+  if (!proof || !proof.name) return "Attach your proof of payment (JPG or PDF).";
+  if (!proofKind(proof)) return "The proof of payment must be a JPG or PDF file.";
+  const size = Number(proof.size) || 0;
+  if (size > PROOF_MAX_BYTES) return "The proof of payment must be 10 MB or smaller. Pick a smaller file.";
+  return null;
+}

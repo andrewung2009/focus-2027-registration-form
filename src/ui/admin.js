@@ -129,6 +129,7 @@ function renderResponse(response) {
         <span class="adm-response-meta">${esc(received)} · ${esc(response.groupSize)} ${response.groupSize === 1 ? "camper" : "campers"}</span>
       </summary>
       <div class="adm-response-body">
+        ${response.proofUrl ? `<a class="adm-proof" href="${esc(response.proofUrl)}" target="_blank" rel="noopener">View proof of payment${response.proofName ? ` &middot; ${esc(response.proofName)}` : ""}</a>` : ""}
         ${response.people.map((person) => renderPerson(person)).join("")}
       </div>
     </details>`;

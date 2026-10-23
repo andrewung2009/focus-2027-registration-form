@@ -63,6 +63,17 @@ export function buildPayload(state, entries, options = {}) {
     modeLabel: mode.label,
     counts,
     people,
+    proof: buildProofPayload(state.proof),
+  };
+}
+
+export function buildProofPayload(proof) {
+  if (!proof || !proof.data || !proof.name) return null;
+  return {
+    name: clean(proof.name),
+    mimeType: clean(proof.mimeType) || (String(proof.name).toLowerCase().endsWith(".pdf") ? "application/pdf" : "image/jpeg"),
+    size: Number(proof.size) || 0,
+    data: String(proof.data),
   };
 }
 

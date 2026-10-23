@@ -13,6 +13,8 @@ var SHEET_NAME = "Registrations";
 
 var ADMIN_KEY = "F27-yihqOrMReA9ong";
 
+var PROOF_FOLDER_NAME = "Focus 2027 Proof of Payment";
+
 var HEADERS = [
   "Received at",
   "Registration ID",
@@ -42,6 +44,8 @@ var HEADERS = [
   "Room selection",
   "Roommate preference",
   "Roommate name",
+  "Proof of payment",
+  "Proof file name",
 ];
 
 function doGet(e) {
@@ -77,6 +81,8 @@ function responsesView(params) {
         children: Number(row[7]) || 0,
         formVersion: row[8],
         submittedAt: row[9],
+        proofUrl: row[28],
+        proofName: row[29],
         people: [],
       };
       order.push(registrationId);
@@ -139,6 +145,21 @@ function doPost(e) {
     }
     ensureHeaders(sheet);
 
+    var proofUrl = "";
+    var proofName = "";
+    if (payload.proof && payload.proof.data) {
+      try {
+        var savedProof = saveProof(payload.registrationId, payload.proof);
+        if (savedProof.ok) {
+          proofUrl = savedProof.url;
+          proofName = payload.proof.name;
+        }
+      } catch (proofError) {
+        proofUrl = "";
+        proofName = "ERROR: " + String(proofError && proofError.message || proofError).slice(0, 180);
+      }
+    }
+
     var rows = payload.people.map(function (person) {
       return [
         new Date(),
@@ -169,13 +190,15 @@ function doPost(e) {
         person.rooming,
         person.roomingPref,
         person.roommateName,
+        proofUrl,
+        proofName,
       ];
     });
 
     sheet.getRange(sheet.getLastRow() + 1, 1, rows.length, rows[0].length).setValues(rows);
     return reply({ ok: true, registrationId: payload.registrationId, count: payload.people.length });
   } catch (error) {
-    return reply({ ok: false, error: "Could not save the registration. Please try again." });
+    return reply({ ok: false, error: "Could not save the registration. Please try again. [" + String(error && error.message || error) + "]" });
   } finally {
     if (locked) lock.releaseLock();
   }
@@ -191,11 +214,34 @@ function getSheet() {
   return sheet;
 }
 
-function ensureHeaders(sheet) {
-  if (sheet.getLastRow() === 0) {
-    sheet.getRange(1, 1, 1, HEADERS.length).setValues([HEADERS]);
-    sheet.setFrozenRows(1);
+function saveProof(registrationId, proof) {
+  var bytes = Utilities.base64Decode(proof.data);
+  if (!bytes || !bytes.length) return { ok: false };
+  var ext = proof.mimeType === "application/pdf" ? "pdf" : "jpg";
+  var mime = ext === "pdf" ? "application/pdf" : "image/jpeg";
+  var blob = Utilities.newBlob(bytes, mime, registrationId + "." + ext);
+  var file = proofFolder().createFile(blob);
+  try {
+    file.setSharing(DriveApp.Access.ANYONE_WITH_LINK, DriveApp.Permission.VIEW);
+  } catch (ignoredSharingError) {
   }
+  return { ok: true, url: file.getUrl() };
+}
+
+function proofFolder() {
+  var folders = DriveApp.getFoldersByName(PROOF_FOLDER_NAME);
+  return folders.hasNext() ? folders.next() : DriveApp.createFolder(PROOF_FOLDER_NAME);
+}
+
+function ensureHeaders(sheet) {
+  var existing = sheet.getLastRow() === 0 ? [] : sheet.getRange(1, 1, 1, Math.max(sheet.getLastColumn(), 1)).getValues()[0];
+  var missing = false;
+  for (var index = 0; index < HEADERS.length; index += 1) {
+    if (existing[index] !== HEADERS[index]) missing = true;
+  }
+  if (!missing) return;
+  sheet.getRange(1, 1, 1, HEADERS.length).setValues([HEADERS]);
+  sheet.setFrozenRows(1);
 }
 
 function alreadySaved(sheet, registrationId) {

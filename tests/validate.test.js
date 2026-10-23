@@ -21,6 +21,7 @@ import {
   validatePassportCountry,
   validatePerson,
   validatePhone,
+  validateProof,
   validateProgram,
   validateRegistration,
   validateStay,
@@ -397,4 +398,22 @@ test("youth and child entries validate through the same pipeline", () => {
   assert.equal(result.ok, false);
   assert.ok(result.results[teen.localId].errors.stayWith);
   assert.ok(result.results[kid.localId].errors.chtbbProgram);
+});
+
+test("proof of payment is required and validated", () => {
+  assert.match(validateProof(null), /attach your proof of payment/i);
+  assert.match(validateProof({ name: "", mimeType: "image/jpeg", size: 100 }), /attach your proof of payment/i);
+  assert.match(validateProof({ name: "receipt.png", mimeType: "image/png", size: 100 }), /must be a JPG or PDF/i);
+  assert.match(validateProof({ name: "receipt.pdf", mimeType: "image/png", size: 100 }), /must be a JPG or PDF/i);
+  assert.match(validateProof({ name: "receipt.jpg", mimeType: "image/png", size: 100 }), /must be a JPG or PDF/i);
+  assert.match(validateProof({ name: "receipt.jpg", mimeType: "image/jpeg", size: 11 * 1024 * 1024 }), /10 MB or smaller/i);
+  assert.match(validateProof({ name: "", mimeType: "application/pdf", size: 100 }), /attach your proof of payment/i);
+});
+
+test("proof of payment accepts jpeg and pdf files up to 10 MB", () => {
+  assert.equal(validateProof({ name: "receipt.jpg", mimeType: "image/jpeg", size: 1024 }), null);
+  assert.equal(validateProof({ name: "receipt.jpeg", mimeType: "", size: 1024 }), null);
+  assert.equal(validateProof({ name: "receipt.PDF", mimeType: "application/pdf", size: 500 }), null);
+  assert.equal(validateProof({ name: "bank slip.pdf", mimeType: "application/pdf", size: 10 * 1024 * 1024 }), null);
+  assert.equal(validateProof({ name: "receipt.png", mimeType: "image/png", size: 10 }), "The proof of payment must be a JPG or PDF file.");
 });

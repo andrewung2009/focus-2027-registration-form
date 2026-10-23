@@ -1302,3 +1302,105 @@ textarea.input {
   font-size: 0.8rem;
   color: var(--muted);
 }
+
+
+.proof-pay {
+  margin-bottom: 1rem;
+  font-size: 0.92rem;
+}
+
+.proof-pay-details {
+  margin: 0.4rem 0 0.6rem;
+  padding: 0.7rem 1rem;
+  list-style: none;
+  border: 1px solid var(--line);
+  border-radius: var(--radius-sm);
+  background: var(--card-soft);
+  display: grid;
+  gap: 0.25rem;
+  font-size: 0.9rem;
+}
+
+.proof-drop {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 0.25rem;
+  padding: 1.2rem 1rem;
+  border: 1.5px dashed var(--line-strong);
+  border-radius: var(--radius-sm);
+  background: var(--card-soft);
+  text-align: center;
+  cursor: pointer;
+}
+
+.proof-drop:hover {
+  border-color: var(--accent);
+}
+
+.proof-drop:focus-within {
+  outline: 2px solid var(--accent);
+  outline-offset: 2px;
+}
+
+.proof-drop-title {
+  font-weight: 700;
+}
+
+.proof-drop-sub {
+  font-size: 0.8rem;
+  color: var(--muted);
+}
+
+.proof-input {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  margin: 0;
+  border: 0;
+  padding: 0;
+  opacity: 0;
+  cursor: pointer;
+}
+
+.proof-file {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 0.6rem;
+  margin-top: 0.7rem;
+  padding: 0.65rem 0.85rem;
+  border: 1px solid var(--line);
+  border-radius: var(--radius-sm);
+  background: var(--card-soft);
+}
+
+.proof-file[hidden] {
+  display: none;
+}
+
+.proof-file-name {
+  font-weight: 700;
+  font-size: 0.92rem;
+  word-break: break-all;
+}
+
+.proof-file-size {
+  font-size: 0.8rem;
+  color: var(--muted);
+}
+
+.proof-file .btn {
+  margin-left: auto;
+}
+
+
+.adm-proof {
+  justify-self: start;
+  font-size: 0.85rem;
+  font-weight: 700;
+  color: var(--accent-strong);
+}
