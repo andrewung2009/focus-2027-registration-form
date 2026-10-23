@@ -1,6 +1,6 @@
 import { CAMP } from "../../config.js";
 import { esc } from "./escape.js";
-import { DIET_OPTIONS, STAY_OPTIONS } from "../schema.js";
+import { DIET_OPTIONS, ROOM_OPTIONS, STAY_OPTIONS } from "../schema.js";
 
 const KEY_STORAGE = "f27-admin-key";
 const SECTIONS = { adult: "Adult", youth: "Youth", child: "Child" };
@@ -164,7 +164,7 @@ function renderPerson(person) {
     rows.push(["CHTBB program", YES_NO[person.chtbbProgram] || ""]);
   }
   if (person.section === "adult" && person.rooming) {
-    rows.push(["Room selection", person.rooming === "twin" ? "Twin sharing" : "Single occupancy"]);
+    rows.push(["Room preference", roomLabel(person.rooming)]);
     if (person.rooming === "twin") {
       rows.push(["Roommate", person.roomingPref === "assign" ? "Assigned by us" : person.roommateName]);
     }
@@ -207,4 +207,8 @@ function dietText(person) {
 
 function stayLabel(value) {
   return STAY_OPTIONS.find((option) => option.value === value)?.label || value || "";
+}
+
+function roomLabel(value) {
+  return ROOM_OPTIONS.find((option) => option.value === value)?.short || value || "";
 }

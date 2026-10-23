@@ -4,6 +4,7 @@ import {
   DIET_OPTIONS,
   GENDERS,
   ID_TYPES,
+  ROOM_OPTIONS,
   STAY_OPTIONS,
   modeById,
 } from "../schema.js";
@@ -53,7 +54,7 @@ function detailsFor(person, section) {
     rows.push(["CHTBB program", person.chtbbProgram === "yes" ? "Joining" : "Not joining"]);
   }
   if (person.rooming) {
-    rows.push(["Room selection", person.rooming === "twin" ? "Twin sharing" : "Single occupancy (pay 2-pax rate)"]);
+    rows.push(["Room preference", labelFor(ROOM_OPTIONS, person.rooming)]);
     if (person.rooming === "twin") {
       rows.push(["Roommate preference", person.roomingPref === "specify"
         ? `Rooming with ${person.roommateName}`

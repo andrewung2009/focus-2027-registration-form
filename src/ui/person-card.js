@@ -7,6 +7,8 @@ import {
   DIET_OPTIONS,
   GENDERS,
   ID_TYPES,
+  ROOM_IMAGES,
+  ROOM_OPTIONS,
   STAY_OPTIONS,
   fieldsForMode,
   modeById,
@@ -167,23 +169,32 @@ function roomingFields(person) {
   const specify = person.roomingPref === "specify";
   return `
     <fieldset class="field field-span">
-      <legend class="field-label">Room selection <span class="req">*</span></legend>
+      <legend class="field-label">Room preference <span class="req">*</span></legend>
       <div class="segmented segmented-sm">
-        <label>
-          <input type="radio" name="rooming-${person.localId}" value="twin"
-            data-field="rooming" ${twin ? "checked" : ""}>
-          <span>Twin sharing</span>
-        </label>
-        <label>
-          <input type="radio" name="rooming-${person.localId}" value="single"
-            data-field="rooming" ${person.rooming === "single" ? "checked" : ""}>
-          <span>Single occupancy (pay 2-pax rate)</span>
-        </label>
+        ${ROOM_OPTIONS.map((option) => `
+          <label>
+            <input type="radio" name="rooming-${person.localId}" value="${option.value}"
+              data-field="rooming" ${person.rooming === option.value ? "checked" : ""}>
+            <span>${esc(option.label)}</span>
+          </label>`).join("")}
       </div>
+      <p class="field-hint">If you select Studio King: 1 King Size Bed, you will have the room to yourself. Please note that single occupancy requires paying the full 2-pax rate to cover total room costs. To view room layouts, visit <a href="https://amvertoncove.com/our-rooms" target="_blank" rel="noopener">amvertoncove.com/our-rooms</a>.</p>
+      <div class="room-photos">
+        ${ROOM_OPTIONS.map((option) => {
+          const image = ROOM_IMAGES[option.value];
+          if (!image) return "";
+          return `
+            <figure class="room-photo">
+              <img src="${esc(image.src)}" alt="${esc(image.alt)}" loading="lazy">
+              <figcaption>${esc(option.short)}</figcaption>
+            </figure>`;
+        }).join("")}
+      </div>
+      <p class="field-hint">While we make every effort to accommodate your room preference, final assignments remain at the discretion of the Focus Team to ensure all participants are safely and comfortably accommodated within venue capacity.</p>
       <p class="field-error" data-error="rooming"></p>
     </fieldset>
     <fieldset class="field field-span" data-rooming-choose ${twin ? "" : "hidden"}>
-      <legend class="field-label">Twin sharing — pick a roommate option <span class="req">*</span></legend>
+      <legend class="field-label">Studio Twin — pick a roommate option <span class="req">*</span></legend>
       <div class="roommate-options">
         <div class="roommate-line">
           <label class="roommate-choice">

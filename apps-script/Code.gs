@@ -43,7 +43,7 @@ var HEADERS = [
   "Youth program",
   "CHTBB program",
   "Stay preference",
-  "Room selection",
+  "Room preference",
   "Roommate preference",
   "Roommate name",
   "Proof of payment",

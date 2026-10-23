@@ -135,6 +135,22 @@ export const STAY_OPTIONS = [
   { value: "other_youths", label: "With other youths" },
 ];
 
+export const ROOM_OPTIONS = [
+  { value: "twin", label: "Studio Twin: 2 Super Single Bed", short: "Studio Twin" },
+  { value: "single", label: "Studio King: 1 King Size Bed", short: "Studio King" },
+];
+
+export const ROOM_IMAGES = {
+  twin: {
+    src: "https://drive.google.com/thumbnail?id=1ttbu9d0LZHdw-zANSeMPPWADfZHhGxeR&sz=w1200",
+    alt: "Studio Twin room with two super single beds",
+  },
+  single: {
+    src: "https://drive.google.com/thumbnail?id=1II8xPjoZo90pajPgxnXwnE5oAiYaDKHn&sz=w1200",
+    alt: "Studio King room with one king size bed",
+  },
+};
+
 export const CAMP_LABEL = `${CAMP.name} ${CAMP.year}`;
 
 export { COUNTRIES };
