@@ -27,6 +27,7 @@ export const SECTIONS = [
   {
     id: "child",
     label: "Child",
+    heading: "Child",
     plural: "Children",
     ages: "Born in 2017 or later",
     addLabel: "Add another child",

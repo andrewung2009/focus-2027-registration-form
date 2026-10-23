@@ -268,7 +268,7 @@ export function renderSection(state, section) {
     label: mode.maxAdults === 1 ? `${section.label} registration` : `${section.label} ${index + 1}`,
   })).join("");
   const empty = !people.length ? `
-    <p class="empty-state">No ${section.plural.toLowerCase()} added yet.</p>` : "";
+    <p class="empty-state">No ${(section.heading || section.plural).toLowerCase()} added yet.</p>` : "";
   const capNote = atTotalCap ? `
     <p class="empty-state">This registration type is capped at ${mode.maxTotal} people.</p>` : "";
   const addControl = addable ? `
@@ -280,7 +280,7 @@ export function renderSection(state, section) {
     <section class="panel section-${section.id}" data-panel="${section.id}" aria-labelledby="heading-${section.id}">
       <header class="panel-head">
         <div>
-          <h2 id="heading-${section.id}">${esc(section.plural)}</h2>
+          <h2 id="heading-${section.id}">${esc(section.heading || section.plural)}</h2>
           <p class="panel-sub">${esc(section.ages)}</p>
         </div>
       </header>

@@ -47,8 +47,7 @@ function renderModeBar() {
   return `
     <section class="mode-bar">
       <div class="mode-copy">
-        <h2>Who is registering?</h2>
-        <p>Choose the option that fits your group.</p>
+        <h2>Who are you registering for?</h2>
       </div>
       <div class="mode-grid" role="radiogroup" aria-label="Registration type">
         ${MODES.map((mode) => `
