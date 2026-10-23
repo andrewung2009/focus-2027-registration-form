@@ -12,7 +12,8 @@ export const PAYMENT = {
   account: "5123 4567 8901",
   accountName: "Holy Trinity Bukit Bintang",
   reference: "Focus 2027",
-  note: "Attach the banking receipt (screenshot or PDF) for your camp fees below.",
+  maxProofFiles: 6,
+  note: "Attach the banking receipt(s) (screenshot or PDF) for your camp fees below. Up to 6 files.",
 };
 
 export const CUTOFF_DATE = CAMP.cutoffDate;

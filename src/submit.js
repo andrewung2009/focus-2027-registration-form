@@ -63,8 +63,14 @@ export function buildPayload(state, entries, options = {}) {
     modeLabel: mode.label,
     counts,
     people,
-    proof: buildProofPayload(state.proof),
+    proof: buildProofPayloads(state.proof),
   };
+}
+
+export function buildProofPayloads(proofs) {
+  const list = Array.isArray(proofs) ? proofs : [];
+  const items = list.map(buildProofPayload).filter(Boolean);
+  return items.length ? items : null;
 }
 
 export function buildProofPayload(proof) {

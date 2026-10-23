@@ -107,10 +107,12 @@ export function renderReview(state, entries, counts) {
       <div class="panel-body">
         <p class="review-note">Check every detail below. If anything is wrong, go back and edit before submitting.</p>
         ${groups}
-        ${state.proof ? `
+        ${(state.proof || []).length ? `
         <div class="review-proof">
           <h3 class="review-group-head">Proof of payment</h3>
-          <p>Attached receipt: <strong>${esc(state.proof.name)}</strong> (${esc(formatBytes(state.proof.size))}).</p>
+          <ul class="review-proof-files">
+            ${(state.proof || []).map((file) => `<li>Attached receipt: <strong>${esc(file.name)}</strong> (${esc(formatBytes(file.size))})</li>`).join("")}
+          </ul>
         </div>` : ""}
         <div class="review-actions">
           <button type="button" class="btn" data-edit>Back to edit</button>

@@ -31,7 +31,7 @@ export function blankPerson(section) {
 export function createState() {
   return {
     mode: "family",
-    proof: null,
+    proof: [],
     people: {
       adult: [blankPerson("adult")],
       youth: [],

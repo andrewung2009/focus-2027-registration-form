@@ -15,6 +15,8 @@ var ADMIN_KEY = "F27-yihqOrMReA9ong";
 
 var PROOF_FOLDER_NAME = "Focus 2027 Proof of Payment";
 
+var PROOF_LINK_COLUMN = 29;
+
 var HEADERS = [
   "Received at",
   "Registration ID",
@@ -147,18 +149,28 @@ function doPost(e) {
 
     var proofUrl = "";
     var proofName = "";
-    if (payload.proof && payload.proof.data) {
+    var proofItems = Array.isArray(payload.proof) ? payload.proof : payload.proof && payload.proof.data ? [payload.proof] : [];
+    var proofLinks = [];
+    var proofLabels = [];
+    var proofPairs = [];
+    for (var proofIndex = 0; proofIndex < proofItems.length; proofIndex += 1) {
+      var proofItem = proofItems[proofIndex];
+      if (!proofItem || !proofItem.data) continue;
       try {
-        var savedProof = saveProof(payload.registrationId, payload.proof);
+        var savedProof = saveProof(payload.registrationId + "-" + (proofLinks.length + 1), proofItem);
         if (savedProof.ok) {
-          proofUrl = savedProof.url;
-          proofName = payload.proof.name;
+          proofLinks.push(savedProof.url);
+          proofLabels.push(proofItem.name);
+          proofPairs.push({ url: savedProof.url, name: proofItem.name });
+        } else {
+          proofLabels.push("ERROR: the file could not be saved.");
         }
       } catch (proofError) {
-        proofUrl = "";
-        proofName = "ERROR: " + String(proofError && proofError.message || proofError).slice(0, 180);
+        proofLabels.push("ERROR: " + String(proofError && proofError.message || proofError).slice(0, 180));
       }
     }
+    proofUrl = proofLinks.join("\n");
+    proofName = proofLabels.join("\n");
 
     var rows = payload.people.map(function (person) {
       return [
@@ -195,7 +207,11 @@ function doPost(e) {
       ];
     });
 
-    sheet.getRange(sheet.getLastRow() + 1, 1, rows.length, rows[0].length).setValues(rows);
+    var startRow = sheet.getLastRow() + 1;
+    sheet.getRange(startRow, 1, rows.length, rows[0].length).setValues(rows);
+    if (proofPairs.length) {
+      applyProofLinkCells(sheet, startRow, rows.length, proofPairs);
+    }
     return reply({ ok: true, registrationId: payload.registrationId, count: payload.people.length });
   } catch (error) {
     return reply({ ok: false, error: "Could not save the registration. Please try again. [" + String(error && error.message || error) + "]" });
@@ -226,6 +242,21 @@ function saveProof(registrationId, proof) {
   } catch (ignoredSharingError) {
   }
   return { ok: true, url: file.getUrl() };
+}
+
+function applyProofLinkCells(sheet, startRow, rowCount, pairs) {
+  var text = pairs.map(function (pair) { return pair.url; }).join("\n");
+  var builder = SpreadsheetApp.newRichTextValue().setText(text);
+  var offset = 0;
+  for (var index = 0; index < pairs.length; index += 1) {
+    builder = builder.setLinkUrl(offset, offset + pairs[index].url.length, pairs[index].url);
+    offset += pairs[index].url.length + 1;
+  }
+  var rich = builder.build();
+  for (var row = 0; row < rowCount; row += 1) {
+    sheet.getRange(startRow + row, PROOF_LINK_COLUMN).setRichTextValue(rich);
+  }
+  sheet.getRange(startRow, PROOF_LINK_COLUMN, rowCount, 1).setWrap(true);
 }
 
 function proofFolder() {

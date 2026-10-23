@@ -22,6 +22,7 @@ import {
   validatePerson,
   validatePhone,
   validateProof,
+  validateProofList,
   validateProgram,
   validateRegistration,
   validateStay,
@@ -400,20 +401,44 @@ test("youth and child entries validate through the same pipeline", () => {
   assert.ok(result.results[kid.localId].errors.chtbbProgram);
 });
 
-test("proof of payment is required and validated", () => {
-  assert.match(validateProof(null), /attach your proof of payment/i);
-  assert.match(validateProof({ name: "", mimeType: "image/jpeg", size: 100 }), /attach your proof of payment/i);
+test("proof of payment is validated per file", () => {
+  assert.match(validateProof(null), /missing file name|remove the attachment/i);
+  assert.match(validateProof({ name: "", mimeType: "image/jpeg", size: 100 }), /missing file name/i);
   assert.match(validateProof({ name: "receipt.png", mimeType: "image/png", size: 100 }), /must be a JPG or PDF/i);
   assert.match(validateProof({ name: "receipt.pdf", mimeType: "image/png", size: 100 }), /must be a JPG or PDF/i);
   assert.match(validateProof({ name: "receipt.jpg", mimeType: "image/png", size: 100 }), /must be a JPG or PDF/i);
   assert.match(validateProof({ name: "receipt.jpg", mimeType: "image/jpeg", size: 11 * 1024 * 1024 }), /10 MB or smaller/i);
-  assert.match(validateProof({ name: "", mimeType: "application/pdf", size: 100 }), /attach your proof of payment/i);
+  assert.match(validateProof({ name: "receipt.jpg", mimeType: "image/jpeg", size: 0 }), /looks empty/i);
+  assert.match(validateProof({ name: "a.jpg", mimeType: "image/jpeg", size: 10, data: "" }), /could not be read/i);
 });
 
 test("proof of payment accepts jpeg and pdf files up to 10 MB", () => {
-  assert.equal(validateProof({ name: "receipt.jpg", mimeType: "image/jpeg", size: 1024 }), null);
-  assert.equal(validateProof({ name: "receipt.jpeg", mimeType: "", size: 1024 }), null);
-  assert.equal(validateProof({ name: "receipt.PDF", mimeType: "application/pdf", size: 500 }), null);
-  assert.equal(validateProof({ name: "bank slip.pdf", mimeType: "application/pdf", size: 10 * 1024 * 1024 }), null);
-  assert.equal(validateProof({ name: "receipt.png", mimeType: "image/png", size: 10 }), "The proof of payment must be a JPG or PDF file.");
+  assert.equal(validateProof({ name: "receipt.jpg", mimeType: "image/jpeg", size: 1024, data: "AA==" }), null);
+  assert.equal(validateProof({ name: "receipt.jpeg", mimeType: "", size: 1024, data: "AA==" }), null);
+  assert.equal(validateProof({ name: "receipt.PDF", mimeType: "application/pdf", size: 500, data: "AA==" }), null);
+  assert.equal(validateProof({ name: "bank slip.pdf", mimeType: "application/pdf", size: 10 * 1024 * 1024, data: "AA==" }), null);
+  assert.equal(validateProof({ name: "receipt.png", mimeType: "image/png", size: 10, data: "AA==" }), "The proof of payment must be a JPG or PDF file.");
+});
+
+test("proof of payment list requires something attached and caps the count", () => {
+  assert.match(validateProofList([]), /attach at least one/i);
+  assert.match(validateProofList(null), /attach at least one/i);
+  const many = [];
+  for (let n = 0; n < 7; n += 1) many.push({ name: `r${n}.jpg`, mimeType: "image/jpeg", size: 100, data: "AA==" });
+  assert.match(validateProofList(many), /at most 6/i);
+  assert.match(validateProofList([null, { name: "r.png", mimeType: "image/png", size: 100, data: "AA==" }]), /must be a JPG or PDF/i);
+});
+
+test("proof of payment list allows six files under the total cap", () => {
+  const six = [];
+  for (let n = 0; n < 6; n += 1) six.push({ name: `r${n}.jpg`, mimeType: "image/jpeg", size: 1024 * 1024, data: "AA==" });
+  assert.equal(validateProofList(six), null);
+  const tooBig = [];
+  for (let n = 0; n < 6; n += 1) tooBig.push({ name: `r${n}.jpg`, mimeType: "image/jpeg", size: 6 * 1024 * 1024, data: "AA==" });
+  assert.match(validateProofList(tooBig), /30 MB or smaller/i);
+  const mixed = [
+    { name: "a.pdf", mimeType: "application/pdf", size: 2048, data: "AA==" },
+    { name: "b.jpeg", mimeType: "", size: 100, data: "AA==" },
+  ];
+  assert.equal(validateProofList(mixed), null);
 });

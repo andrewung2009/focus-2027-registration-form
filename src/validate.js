@@ -456,6 +456,8 @@ export function validateRegistration(state, entries) {
 }
 
 export const PROOF_MAX_BYTES = 10 * 1024 * 1024;
+export const PROOF_MAX_FILES = 6;
+export const PROOF_MAX_TOTAL_BYTES = 30 * 1024 * 1024;
 
 function proofKind(proof) {
   const name = String(proof?.name || "");
@@ -472,9 +474,27 @@ function proofKind(proof) {
 }
 
 export function validateProof(proof) {
-  if (!proof || !proof.name) return "Attach your proof of payment (JPG or PDF).";
+  if (!proof || !proof.name) return "Missing file name. Remove the attachment and pick the file again.";
   if (!proofKind(proof)) return "The proof of payment must be a JPG or PDF file.";
   const size = Number(proof.size) || 0;
-  if (size > PROOF_MAX_BYTES) return "The proof of payment must be 10 MB or smaller. Pick a smaller file.";
+  if (size <= 0) return "This file looks empty. Remove it and pick a different file.";
+  if (size > PROOF_MAX_BYTES) return "Each file must be 10 MB or smaller. Pick a smaller file.";
+  if (proof.data !== undefined && !String(proof.data || "").length) return "This file could not be read. Remove it and pick it again.";
+  return null;
+}
+
+export function validateProofList(proofs) {
+  const list = Array.isArray(proofs) ? proofs : [];
+  const files = list.filter((item) => item && (item.name || item.data));
+  if (!files.length) return "Attach at least one proof of payment (JPG or PDF).";
+  if (files.length > PROOF_MAX_FILES) return `Attach at most ${PROOF_MAX_FILES} files.`;
+  for (const file of files) {
+    const message = validateProof(file);
+    if (message) {
+      return `${file.name}: ${message}`;
+    }
+  }
+  const total = files.reduce((sum, file) => sum + (Number(file.size) || 0), 0);
+  if (total > PROOF_MAX_TOTAL_BYTES) return "The files together must be 30 MB or smaller. Remove a file or pick smaller ones.";
   return null;
 }

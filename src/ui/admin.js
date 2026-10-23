@@ -119,6 +119,17 @@ function renderList() {
   listEl.innerHTML = visible.map(renderResponse).join("");
 }
 
+function renderProofLinks(response) {
+  const urls = String(response.proofUrl || "").split("\n").map((url) => url.trim()).filter(Boolean);
+  const names = String(response.proofName || "").split("\n").map((name) => name.trim()).filter(Boolean);
+  if (!urls.length) return "";
+  return urls.map((url, index) => {
+    const label = names[index] || `Receipt ${index + 1}`;
+    const badge = label.startsWith("ERROR") ? `<span class="field-error">${esc(label)}</span>` : "";
+    return `<a class="adm-proof" href="${esc(url)}" target="_blank" rel="noopener">View proof of payment &middot; ${esc(label)}</a>${badge}`;
+  }).join("");
+}
+
 function renderResponse(response) {
   const received = formatTimestamp(response.receivedAt);
   return `
@@ -129,7 +140,7 @@ function renderResponse(response) {
         <span class="adm-response-meta">${esc(received)} · ${esc(response.groupSize)} ${response.groupSize === 1 ? "camper" : "campers"}</span>
       </summary>
       <div class="adm-response-body">
-        ${response.proofUrl ? `<a class="adm-proof" href="${esc(response.proofUrl)}" target="_blank" rel="noopener">View proof of payment${response.proofName ? ` &middot; ${esc(response.proofName)}` : ""}</a>` : ""}
+        ${renderProofLinks(response)}
         ${response.people.map((person) => renderPerson(person)).join("")}
       </div>
     </details>`;

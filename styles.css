@@ -1366,20 +1366,25 @@ textarea.input {
   cursor: pointer;
 }
 
+.proof-list {
+  display: grid;
+  gap: 0.45rem;
+  margin-top: 0.7rem;
+}
+
+.proof-list[hidden] {
+  display: none;
+}
+
 .proof-file {
   display: flex;
   flex-wrap: wrap;
   align-items: center;
   gap: 0.6rem;
-  margin-top: 0.7rem;
   padding: 0.65rem 0.85rem;
   border: 1px solid var(--line);
   border-radius: var(--radius-sm);
   background: var(--card-soft);
-}
-
-.proof-file[hidden] {
-  display: none;
 }
 
 .proof-file-name {
@@ -1403,4 +1408,17 @@ textarea.input {
   font-size: 0.85rem;
   font-weight: 700;
   color: var(--accent-strong);
+}
+
+
+.review-proof {
+  margin-top: 1rem;
+}
+
+.review-proof-files {
+  margin: 0.4rem 0 0;
+  padding-left: 1.2rem;
+  display: grid;
+  gap: 0.25rem;
+  font-size: 0.92rem;
 }

@@ -21,7 +21,9 @@ import {
   sectionMismatchFor,
   validatePerson,
   validateProof,
+  validateProofList,
   validateRegistration,
+  PROOF_MAX_FILES,
 } from "./validate.js";
 
 const root = document.getElementById("app");
@@ -350,14 +352,23 @@ function setProofError(message) {
 }
 
 function syncProofPanel() {
-  const fileBox = root.querySelector("[data-proof-file]");
-  if (!fileBox) return;
-  const proof = state.proof;
-  fileBox.hidden = !proof;
-  const name = fileBox.querySelector("[data-proof-file-name]");
-  const size = fileBox.querySelector("[data-proof-file-size]");
-  if (name) name.textContent = proof ? proof.name : "";
-  if (size) size.textContent = proof ? formatBytes(proof.size) : "";
+  const list = root.querySelector("[data-proof-list]");
+  if (!list) return;
+  const files = state.proof || [];
+  list.hidden = !files.length;
+  list.innerHTML = files.map((file, index) => `
+    <div class="proof-file">
+      <span class="proof-file-name">${file.name}</span>
+      <span class="proof-file-size">${formatBytes(file.size)}</span>
+      <button type="button" class="btn tiny ghost danger" data-proof-remove data-proof-index="${index}">Remove</button>
+    </div>`).join("");
+  const title = root.querySelector("[data-proof-title]");
+  const sub = root.querySelector("[data-proof-sub]");
+  const full = files.length >= PROOF_MAX_FILES;
+  if (title) title.textContent = full ? "Maximum receipts attached" : files.length ? "Attach another receipt (JPG or PDF)" : "Attach receipt (JPG or PDF)";
+  if (sub) sub.textContent = full ? `${files.length} of ${PROOF_MAX_FILES} attached` : files.length ? `${files.length} of ${PROOF_MAX_FILES} attached · up to 10 MB each` : "Up to 6 files · 10 MB each · 30 MB total";
+  const input = root.querySelector("[data-proof-input]");
+  if (input) input.disabled = full;
 }
 
 function readAsDataURL(file) {
@@ -369,30 +380,39 @@ function readAsDataURL(file) {
   });
 }
 
-async function handleProofFile(file) {
+async function handleProofFiles(fileList) {
   clearBanner();
   setProofError("");
-  if (!file) {
-    return;
+  const picked = Array.from(fileList || []);
+  if (!picked.length) return;
+  const staged = [...(state.proof || [])];
+  let failure = "";
+  for (const file of picked) {
+    if (staged.length >= PROOF_MAX_FILES) {
+      failure = `Attach at most ${PROOF_MAX_FILES} files.`;
+      break;
+    }
+    const early = validateProof({ name: file.name, mimeType: file.type, size: file.size });
+    if (early) {
+      failure = `${file.name}: ${early}`;
+      continue;
+    }
+    try {
+      const dataUrl = await readAsDataURL(file);
+      const data = dataUrl.split(",")[1] || "";
+      if (!data) throw new Error("empty data url");
+      staged.push({ name: file.name, mimeType: file.type, size: file.size, data });
+    } catch {
+      failure = `${file.name}: the file could not be read. Pick it again or try a different file.`;
+    }
   }
-  const early = validateProof({ name: file.name, mimeType: file.type, size: file.size });
-  if (early) {
-    state.proof = null;
-    syncProofPanel();
-    setProofError(early);
-    return;
-  }
-  try {
-    const dataUrl = await readAsDataURL(file);
-    const data = dataUrl.split(",")[1] || "";
-    if (!data) throw new Error("empty data url");
-    state.proof = { name: file.name, mimeType: file.type, size: file.size, data };
-    syncProofPanel();
-    clearBanner();
-  } catch {
-    state.proof = null;
-    syncProofPanel();
-    setProofError("The file could not be read. Pick it again or try a different file.");
+  state.proof = staged;
+  syncProofPanel();
+  const listMessage = validateProofList(staged);
+  if (failure) {
+    setProofError(failure);
+  } else if (listMessage && staged.length) {
+    setProofError(listMessage);
   }
 }
 
@@ -403,7 +423,7 @@ function goReview() {
     return;
   }
 
-  const proofError = validateProof(state.proof);
+  const proofError = validateProofList(state.proof);
   if (proofError) {
     showBanner("error", proofError);
     setProofError(proofError);
@@ -461,7 +481,7 @@ async function submitRegistration() {
 function resetRegistration() {
   const fresh = createState();
   state.mode = fresh.mode;
-  state.proof = null;
+  state.proof = [];
   state.people = fresh.people;
   registrationId = "";
   lastResult = null;
@@ -515,7 +535,7 @@ root.addEventListener("input", (event) => {
 root.addEventListener("change", (event) => {
   const proofInput = event.target.closest("[data-proof-input]");
   if (proofInput) {
-    handleProofFile(proofInput.files && proofInput.files[0]);
+    handleProofFiles(proofInput.files);
     proofInput.value = "";
     return;
   }
@@ -602,7 +622,8 @@ root.addEventListener("click", (event) => {
   }
 
   if (event.target.closest("[data-proof-remove]")) {
-    state.proof = null;
+    const index = Number(event.target.closest("[data-proof-remove]").dataset.proofIndex);
+    state.proof = (state.proof || []).filter((_file, position) => position !== index);
     syncProofPanel();
     setProofError("");
     clearBanner();
