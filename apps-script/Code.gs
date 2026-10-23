@@ -90,6 +90,12 @@ function responsesView(params) {
         people: [],
       };
       order.push(registrationId);
+    } else {
+      var existing = byId[registrationId];
+      if (!existing.groupSize) existing.groupSize = Number(row[4]) || 0;
+      if (!existing.adults) existing.adults = Number(row[5]) || 0;
+      if (!existing.youths) existing.youths = Number(row[6]) || 0;
+      if (!existing.children) existing.children = Number(row[7]) || 0;
     }
     byId[registrationId].people.push({
       section: row[10],
@@ -176,16 +182,17 @@ function doPost(e) {
     proofUrl = proofLinks.join("\n");
     proofName = proofLabels.join("\n");
 
-    var rows = payload.people.map(function (person) {
+    var rows = payload.people.map(function (person, personIndex) {
+      var showCounts = personIndex === 0;
       return [
         new Date(),
         payload.registrationId,
         payload.camp,
         payload.modeLabel,
-        payload.people.length,
-        payload.counts.adult,
-        payload.counts.youth,
-        payload.counts.child,
+        showCounts ? payload.people.length : "",
+        showCounts ? payload.counts.adult : "",
+        showCounts ? payload.counts.youth : "",
+        showCounts ? payload.counts.child : "",
         payload.formVersion,
         payload.submittedAt,
         person.section,
@@ -279,6 +286,24 @@ function ensureHeaders(sheet) {
   if (!missing) return;
   sheet.getRange(1, 1, 1, HEADERS.length).setValues([HEADERS]);
   sheet.setFrozenRows(1);
+}
+
+function normaliseGroupCounts() {
+  var sheet = getSheet();
+  ensureHeaders(sheet);
+  var last = sheet.getLastRow();
+  if (last < 2) return;
+  var ids = sheet.getRange(2, 2, last - 1, 1).getValues();
+  var seen = {};
+  for (var index = 0; index < ids.length; index += 1) {
+    var id = String(ids[index][0]);
+    if (!id) continue;
+    if (!seen[id]) {
+      seen[id] = true;
+      continue;
+    }
+    sheet.getRange(index + 2, 5, 1, 4).setValues([["", "", "", ""]]);
+  }
 }
 
 function alreadySaved(sheet, registrationId) {

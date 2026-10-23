@@ -3,7 +3,7 @@ import { DIET_NOTES_REQUIRED, MODES, SECTIONS, modeById, sectionById } from "./s
 import { ageLabel, displayToISO, formatDobTyping, paysYouthFee } from "./age.js";
 import {
   allEntries,
-  blankPerson,
+  blankPersonFor,
   counts,
   createState,
   ensureMode,
@@ -285,7 +285,7 @@ function addPerson(sectionId) {
     return;
   }
 
-  const person = blankPerson(sectionId);
+  const person = blankPersonFor(sectionId, mode);
   state.people[sectionId].push(person);
   clearBanner();
   render();

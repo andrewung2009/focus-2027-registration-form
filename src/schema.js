@@ -84,7 +84,7 @@ export const MODES = [
   {
     id: "friends",
     label: "A group of adult friends rooming together",
-    hint: "2 pax or 4 pax (same gender)",
+    hint: "2 adults or 4 adults (same gender)",
     sections: ["adult"],
     startAdults: 2,
     minAdults: 2,
@@ -92,6 +92,19 @@ export const MODES = [
     addAdults: true,
     removeAdults: true,
     adultCounts: [2, 4],
+  },
+  {
+    id: "youths",
+    label: "Youth(s) (Parent/Legal guardian not attending Focus)",
+    hint: "Up to 4 youths",
+    sections: ["youth"],
+    startAdults: 0,
+    minAdults: 0,
+    maxAdults: 0,
+    addAdults: false,
+    removeAdults: false,
+    startYouths: 1,
+    maxTotal: 4,
   },
 ];
 

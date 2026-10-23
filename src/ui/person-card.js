@@ -48,12 +48,12 @@ function idField(person) {
           <option value="">Issuing country</option>
           ${countryOptions}
         </select>
+        <input class="input grow" type="text" data-field="idCountryOther" value="${esc(person.idCountryOther)}"
+          maxlength="80" placeholder="Type the issuing country" ${otherCountry ? "" : "hidden"}>
         <input class="input grow" type="text" data-field="idNumber" value="${esc(person.idNumber)}"
           autocomplete="off" spellcheck="false" inputmode="${isPassport ? "text" : "numeric"}"
           placeholder="${placeholder}">
       </div>
-      <input class="input" type="text" data-field="idCountryOther" value="${esc(person.idCountryOther)}"
-        maxlength="80" placeholder="Type the issuing country" ${otherCountry ? "" : "hidden"}>
       <p class="field-error" data-error="idCountry"></p>
       <p class="field-error" data-error="idCountryOther"></p>
       <p class="field-error" data-error="idNumber"></p>
@@ -320,7 +320,12 @@ export function renderSection(state, section) {
       <button type="button" class="btn small" data-add="${section.id}">${esc(people.length ? section.addLabel : section.firstAddLabel || section.addLabel)}</button>
     </div>` : "";
 
+  const guardianNote = mode.id === "youths" && section.id === "youth"
+    ? '<p class="form-note">This form must be completed by an adult (parent or legal guardian).</p>'
+    : "";
+
   return `
+    ${guardianNote}
     <section class="panel section-${section.id}" data-panel="${section.id}" aria-labelledby="heading-${section.id}">
       <header class="panel-head">
         <div>

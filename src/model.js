@@ -64,12 +64,27 @@ export function isBlank(person) {
   ].every((value) => !value);
 }
 
+export function blankPersonFor(sectionId, mode) {
+  const person = blankPerson(sectionId);
+  if (mode && mode.id === "youths" && sectionId === "youth") {
+    person.youthProgram = "yes";
+    person.stayWith = "other_youths";
+  }
+  return person;
+}
+
 export function ensureMode(state) {
   const mode = modeById(state.mode);
-  while (state.people.adult.length < mode.startAdults) {
-    state.people.adult.push(blankPerson("adult"));
+  if (mode.sections.includes("adult")) {
+    while (state.people.adult.length < mode.startAdults) {
+      state.people.adult.push(blankPerson("adult"));
+    }
+    if (!state.people.adult.length) state.people.adult.push(blankPerson("adult"));
   }
-  if (!state.people.adult.length) state.people.adult.push(blankPerson("adult"));
+  const startYouths = mode.startYouths || 0;
+  while (state.people.youth.length < startYouths) {
+    state.people.youth.push(blankPersonFor("youth", mode));
+  }
 }
 
 export function pruneBlank(state) {
