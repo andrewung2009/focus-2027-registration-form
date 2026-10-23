@@ -25,3 +25,5 @@ export const AGE_BANDS = {
 };
 
 export const CHTBB_BAND = { minYears: 1.5, maxYearsExclusive: 11 };
+
+export const YOUTH_FEE_BAND = { dobFrom: "2009-09-19", dobTo: "2009-09-30" };

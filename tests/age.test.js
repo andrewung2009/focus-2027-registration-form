@@ -10,6 +10,7 @@ import {
   formatDobTyping,
   fullMonthsBetween,
   parseDate,
+  paysYouthFee,
   sectionForDob,
   toISO,
 } from "../src/age.js";
@@ -36,6 +37,17 @@ test("child covers birth years 2017 onwards", () => {
   assert.equal(sectionForDob("2026-07-01", CUTOFF, AGE_BANDS), "child");
   assert.equal(sectionForDob("2027-12-31", CUTOFF, AGE_BANDS), "child");
   assert.equal(sectionForDob("2016-12-31", CUTOFF, AGE_BANDS), "youth");
+});
+
+test("youth camp fee only applies to adults born 19-30 September 2009", () => {
+  assert.equal(paysYouthFee("2009-09-19"), true);
+  assert.equal(paysYouthFee("2009-09-30"), true);
+  assert.equal(paysYouthFee("2009-09-18"), false);
+  assert.equal(paysYouthFee("2009-10-01"), false);
+  assert.equal(paysYouthFee("2009-09-01"), false);
+  assert.equal(paysYouthFee("2009-12-31"), false);
+  assert.equal(paysYouthFee(""), false);
+  assert.equal(sectionForDob("2009-09-25", CUTOFF, AGE_BANDS), "adult");
 });
 
 test("the year bands switch exactly at 31 December 2016", () => {

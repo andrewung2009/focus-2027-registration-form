@@ -217,6 +217,11 @@ export function validateStay(value) {
   return null;
 }
 
+export function validateStayRoomPref(value) {
+  if (value !== "specify" && value !== "none") return "Choose who you want to room with, or say you have no preference.";
+  return null;
+}
+
 export function validateRooming(value) {
   if (value !== "twin" && value !== "single") return "Select a room option.";
   return null;
@@ -326,6 +331,14 @@ export function validatePerson(person, options = {}) {
   if (fields.includes("stay")) {
     const message = validateStay(person.stayWith);
     if (message) errors.stayWith = message;
+    else if (person.stayWith === "other_youths") {
+      const prefMessage = validateStayRoomPref(person.stayRoomPref);
+      if (prefMessage) errors.stayRoomPref = prefMessage;
+      if (person.stayRoomPref === "specify") {
+        const nameMessage = validateRoommateName(person.stayRoommateName);
+        if (nameMessage) errors.stayRoommateName = nameMessage;
+      }
+    }
   }
   if (fields.includes("rooming")) {
     const roomMessage = validateRooming(person.rooming);
@@ -386,6 +399,14 @@ export function fieldError(person, field) {
     }
     case "stayWith":
       return { key: "stayWith", message: validateStay(person.stayWith) };
+    case "stayRoomPref":
+      if (person.stayWith !== "other_youths") return { key: "stayRoomPref", message: null };
+      return { key: "stayRoomPref", message: validateStayRoomPref(person.stayRoomPref) };
+    case "stayRoommateName":
+      if (person.stayWith !== "other_youths" || person.stayRoomPref !== "specify") {
+        return { key: "stayRoommateName", message: null };
+      }
+      return { key: "stayRoommateName", message: validateRoommateName(person.stayRoommateName) };
     case "rooming": {
       const message = validateRooming(person.rooming);
       if (message) return { key: "rooming", message };

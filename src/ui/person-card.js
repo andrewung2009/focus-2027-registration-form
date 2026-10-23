@@ -1,5 +1,5 @@
 import { CAMP } from "../../config.js";
-import { ageLabel, formatDisplayDate } from "../age.js";
+import { ageLabel, formatDisplayDate, paysYouthFee } from "../age.js";
 import { counts, visiblePeople } from "../model.js";
 import {
   COUNTRIES,
@@ -10,6 +10,7 @@ import {
   ROOM_IMAGES,
   ROOM_OPTIONS,
   STAY_OPTIONS,
+  STAY_ROOM_OPTIONS,
   fieldsForMode,
   modeById,
 } from "../schema.js";
@@ -149,6 +150,8 @@ function programField(person, section) {
 }
 
 function stayField(person) {
+  const otherYouths = person.stayWith === "other_youths";
+  const specify = person.stayRoomPref === "specify";
   return `
     <fieldset class="field field-span">
       <legend class="field-label">Accommodation Preference <span class="req">*</span></legend>
@@ -157,10 +160,32 @@ function stayField(person) {
           <label>
             <input type="radio" name="stayWith-${person.localId}" value="${stay.value}"
               data-field="stayWith" ${person.stayWith === stay.value ? "checked" : ""}>
-            <span>${stay.label}</span>
+            <span>${esc(stay.label)}</span>
           </label>`).join("")}
       </div>
       <p class="field-error" data-error="stayWith"></p>
+    </fieldset>
+    <fieldset class="field field-span" data-stay-choose ${otherYouths ? "" : "hidden"}>
+      <legend class="field-label">Roommate preference <span class="req">*</span></legend>
+      <div class="roommate-options">
+        <div class="roommate-line">
+          <label class="roommate-choice">
+            <input type="radio" name="stayRoomPref-${person.localId}" value="specify"
+              data-field="stayRoomPref" ${specify ? "checked" : ""}>
+            <span>${esc(STAY_ROOM_OPTIONS[0].label)}</span>
+          </label>
+          <input class="input blank-input" type="text" data-field="stayRoommateName" value="${esc(person.stayRoommateName)}"
+            maxlength="80" placeholder="type their full name" aria-label="Roommate full name">
+        </div>
+        <label class="roommate-choice">
+          <input type="radio" name="stayRoomPref-${person.localId}" value="none"
+            data-field="stayRoomPref" ${person.stayRoomPref === "none" ? "checked" : ""}>
+          <span>${esc(STAY_ROOM_OPTIONS[1].label)}</span>
+        </label>
+      </div>
+      <p class="field-hint">Final room and roommate assignments remain at the discretion of the Focus / Youth Team to ensure all participants are safely and comfortably accommodated within venue capacity.</p>
+      <p class="field-error" data-error="stayRoommateName"></p>
+      <p class="field-error" data-error="stayRoomPref"></p>
     </fieldset>`;
 }
 
@@ -170,6 +195,8 @@ function roomingFields(person) {
   return `
     <fieldset class="field field-span">
       <legend class="field-label">Room preference <span class="req">*</span></legend>
+      <p class="field-hint">If you select Studio King: 1 King Size Bed, you will have the room to yourself. Please note that single occupancy requires paying the full 2-pax rate to cover total room costs. To view room layouts, visit <a href="https://amvertoncove.com/our-rooms" target="_blank" rel="noopener">amvertoncove.com/our-rooms</a>.</p>
+      <p class="field-hint">While we make every effort to accommodate your room preference, final assignments remain at the discretion of the Focus Team to ensure all participants are safely and comfortably accommodated within venue capacity.</p>
       <div class="segmented segmented-sm">
         ${ROOM_OPTIONS.map((option) => `
           <label>
@@ -178,7 +205,6 @@ function roomingFields(person) {
             <span>${esc(option.label)}</span>
           </label>`).join("")}
       </div>
-      <p class="field-hint">If you select Studio King: 1 King Size Bed, you will have the room to yourself. Please note that single occupancy requires paying the full 2-pax rate to cover total room costs. To view room layouts, visit <a href="https://amvertoncove.com/our-rooms" target="_blank" rel="noopener">amvertoncove.com/our-rooms</a>.</p>
       <div class="room-photos">
         ${ROOM_OPTIONS.map((option) => {
           const image = ROOM_IMAGES[option.value];
@@ -190,7 +216,6 @@ function roomingFields(person) {
             </figure>`;
         }).join("")}
       </div>
-      <p class="field-hint">While we make every effort to accommodate your room preference, final assignments remain at the discretion of the Focus Team to ensure all participants are safely and comfortably accommodated within venue capacity.</p>
       <p class="field-error" data-error="rooming"></p>
     </fieldset>
     <fieldset class="field field-span" data-rooming-choose ${twin ? "" : "hidden"}>
@@ -261,6 +286,7 @@ export function renderPersonCard(person, section, index, options = {}) {
         </div>
       </header>
       ${isMainContact && section.note ? `<p class="card-note">${esc(section.note)}</p>` : ""}
+      ${section.id === "adult" ? `<p class="card-note fee-note" data-fee-note${paysYouthFee(person.dob) ? "" : " hidden"}>Note: this person will pay the youth camp fee for Focus 2027.</p>` : ""}
       <p class="card-alert" data-alert hidden></p>
       <div class="person-grid">
         ${fieldsFor(person, section, options.fields || section.fields)}

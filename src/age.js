@@ -1,4 +1,4 @@
-import { AGE_BANDS, CUTOFF_DATE } from "../config.js";
+import { AGE_BANDS, CUTOFF_DATE, YOUTH_FEE_BAND } from "../config.js";
 
 const ISO_RE = /^(\d{4})-(\d{2})-(\d{2})$/;
 const DAY_MS = 86400000;
@@ -102,6 +102,16 @@ export function sectionForDob(dobValue, cutoffValue = CUTOFF_DATE, bands = AGE_B
 
 export function daysBetween(from, to) {
   return Math.round((to.getTime() - from.getTime()) / DAY_MS);
+}
+
+export function paysYouthFee(dobValue, band = YOUTH_FEE_BAND) {
+  const dob = parseDate(dobValue);
+  if (!dob) return false;
+  const from = band.dobFrom ? parseDate(band.dobFrom) : null;
+  const to = band.dobTo ? parseDate(band.dobTo) : null;
+  if (from && dob.getTime() < from.getTime()) return false;
+  if (to && dob.getTime() > to.getTime()) return false;
+  return true;
 }
 
 function pad2(value) {

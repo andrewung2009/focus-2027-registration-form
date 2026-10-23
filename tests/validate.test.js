@@ -27,9 +27,10 @@ import {
   validateProgram,
   validateRegistration,
   validateStay,
+  validateStayRoomPref,
 } from "../src/validate.js";
 import { blankPerson } from "../src/model.js";
-import { fieldsForMode, modeById, sectionById } from "../src/schema.js";
+import { STAY_OPTIONS, fieldsForMode, modeById, sectionById } from "../src/schema.js";
 
 function adult(overrides = {}) {
   return {
@@ -61,6 +62,7 @@ function youth(overrides = {}) {
     dietType: "none",
     youthProgram: "yes",
     stayWith: "other_youths",
+    stayRoomPref: "none",
     ...overrides,
   };
 }
@@ -198,6 +200,35 @@ test("genders, programs and stay choices must come from the lists", () => {
   assert.equal(validateProgram("no"), null);
   assert.match(validateStay(""), /accommodation/i);
   assert.equal(validateStay("family_room"), null);
+});
+
+test("accommodation and program questions use the requested wording", () => {
+  assert.equal(STAY_OPTIONS.find((option) => option.value === "family_room").label, "With family");
+  assert.equal(STAY_OPTIONS.find((option) => option.value === "other_youths").label, "With other youths");
+  assert.equal(sectionById("youth").program.label, "Will this youth be participating in the Youth Program?");
+  assert.equal(sectionById("child").program.label, "Will this child be participating in the CHTBB Program?");
+});
+
+test("youths with other youths must pick a roommate preference", () => {
+  assert.equal(validateStayRoomPref("none"), null);
+  assert.equal(validateStayRoomPref("specify"), null);
+  assert.match(validateStayRoomPref(""), /room with|preference/i);
+
+  const fields = sectionById("youth").fields;
+  const missing = validatePerson(youth({ stayRoomPref: "" }), { section: "youth", fields });
+  assert.match(missing.errors.stayRoomPref, /room with|preference/i);
+
+  const noName = validatePerson(youth({ stayRoomPref: "specify", stayRoommateName: "" }), { section: "youth", fields });
+  assert.match(noName.errors.stayRoommateName, /name/i);
+
+  const named = validatePerson(youth({ stayRoomPref: "specify", stayRoommateName: "Aina Zain" }), { section: "youth", fields });
+  assert.equal(named.ok, true);
+
+  const noPreference = validatePerson(youth({ stayRoomPref: "none" }), { section: "youth", fields });
+  assert.equal(noPreference.ok, true);
+
+  const withFamily = validatePerson(youth({ stayWith: "family_room", stayRoomPref: "" }), { section: "youth", fields });
+  assert.equal(withFamily.ok, true);
 });
 
 test("contact numbers are normalised for the selected country", () => {

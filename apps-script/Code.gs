@@ -48,6 +48,8 @@ var HEADERS = [
   "Roommate name",
   "Proof of payment",
   "Proof file name",
+  "Stay roommate preference",
+  "Stay roommate name",
 ];
 
 function doGet(e) {
@@ -107,6 +109,8 @@ function responsesView(params) {
       rooming: row[25],
       roomingPref: row[26],
       roommateName: row[27],
+      stayRoomPref: row[30],
+      stayRoommateName: row[31],
     });
   }
 
@@ -204,6 +208,8 @@ function doPost(e) {
         person.roommateName,
         proofUrl,
         proofName,
+        person.stayRoomPref || "",
+        person.stayRoommateName || "",
       ];
     });
 

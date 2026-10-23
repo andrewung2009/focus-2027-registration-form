@@ -49,6 +49,11 @@ function detailsFor(person, section) {
   if (section.id === "youth") {
     rows.push(["Youth program", person.youthProgram === "yes" ? "Joining" : "Not joining"]);
     rows.push(["Accommodation preference", labelFor(STAY_OPTIONS, person.stayWith)]);
+    if (person.stayWith === "other_youths") {
+      rows.push(["Roommate preference", person.stayRoomPref === "specify"
+        ? `Rooming with ${person.stayRoommateName}`
+        : "No preference"]);
+    }
   }
   if (section.id === "child") {
     rows.push(["CHTBB program", person.chtbbProgram === "yes" ? "Joining" : "Not joining"]);

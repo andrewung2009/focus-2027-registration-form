@@ -159,6 +159,9 @@ function renderPerson(person) {
   if (person.section === "youth") {
     rows.push(["Youth program", YES_NO[person.youthProgram] || ""]);
     rows.push(["Stay preference", stayLabel(person.stayWith)]);
+    if (person.stayWith === "other_youths") {
+      rows.push(["Roommate", person.stayRoomPref === "specify" ? person.stayRoommateName : person.stayRoomPref === "none" ? "No preference" : ""]);
+    }
   }
   if (person.section === "child") {
     rows.push(["CHTBB program", YES_NO[person.chtbbProgram] || ""]);

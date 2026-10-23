@@ -1,6 +1,6 @@
 import { CAMP, PAYMENT } from "../config.js";
 import { DIET_NOTES_REQUIRED, MODES, SECTIONS, modeById, sectionById } from "./schema.js";
-import { ageLabel, displayToISO, formatDobTyping } from "./age.js";
+import { ageLabel, displayToISO, formatDobTyping, paysYouthFee } from "./age.js";
 import {
   allEntries,
   blankPerson,
@@ -198,9 +198,17 @@ function refreshCard(person) {
   const roomingChoose = card.querySelector("[data-rooming-choose]");
   if (roomingChoose) roomingChoose.hidden = person.rooming !== "twin";
 
+  const stayChoose = card.querySelector("[data-stay-choose]");
+  if (stayChoose) stayChoose.hidden = person.stayWith !== "other_youths";
+
+  const feeNote = card.querySelector("[data-fee-note]");
+  if (feeNote) feeNote.hidden = !paysYouthFee(person.dob);
+
   const staleKeys = [];
   if (person.rooming !== "twin") staleKeys.push("roomingPref");
   if (person.rooming !== "twin" || person.roomingPref !== "specify") staleKeys.push("roommateName");
+  if (person.stayWith !== "other_youths") staleKeys.push("stayRoomPref");
+  if (person.stayWith !== "other_youths" || person.stayRoomPref !== "specify") staleKeys.push("stayRoommateName");
   for (const key of staleKeys) {
     const errorElement = card.querySelector(`[data-error="${key}"]`);
     if (errorElement) errorElement.textContent = "";
@@ -531,6 +539,12 @@ root.addEventListener("input", (event) => {
       if (specifyRadio) specifyRadio.checked = true;
       refreshCard(person);
     }
+    if (field === "stayRoommateName" && person.stayWith === "other_youths" && input.value.trim() && person.stayRoomPref !== "specify") {
+      person.stayRoomPref = "specify";
+      const staySpecifyRadio = card.querySelector('input[type="radio"][name^="stayRoomPref"][value="specify"]');
+      if (staySpecifyRadio) staySpecifyRadio.checked = true;
+      refreshCard(person);
+    }
   }
   clearBanner();
 
@@ -538,7 +552,7 @@ root.addEventListener("input", (event) => {
   const errorElement = card.querySelector(`[data-error="${key}"]`);
   if (errorElement && errorElement.textContent) showFieldError(card, key, message);
 
-  if (["dob", "dietType", "idType", "rooming", "roomingPref"].includes(field)) refreshCard(person);
+  if (["dob", "dietType", "idType", "rooming", "roomingPref", "stayWith", "stayRoomPref"].includes(field)) refreshCard(person);
 });
 
 root.addEventListener("change", (event) => {
@@ -585,6 +599,12 @@ root.addEventListener("change", (event) => {
     person.roommateName = "";
     const blankInput = card.querySelector('[data-field="roommateName"]');
     if (blankInput) blankInput.value = "";
+  }
+
+  if (input.dataset.field === "stayRoomPref" && input.value === "none") {
+    person.stayRoommateName = "";
+    const stayBlankInput = card.querySelector('[data-field="stayRoommateName"]');
+    if (stayBlankInput) stayBlankInput.value = "";
   }
 
   if (input.dataset.field === "idType") {

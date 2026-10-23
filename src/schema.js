@@ -22,7 +22,7 @@ export const SECTIONS = [
     fields: ["name", "id", "dob", "gender", "phone", "diet", "program", "stay"],
     program: {
       field: "youthProgram",
-      label: "Are you joining the youth program?",
+      label: "Will this youth be participating in the Youth Program?",
     },
   },
   {
@@ -36,7 +36,7 @@ export const SECTIONS = [
     fields: ["name", "id", "dob", "gender", "diet", "program"],
     program: {
       field: "chtbbProgram",
-      label: "Are you joining the CHTBB program?",
+      label: "Will this child be participating in the CHTBB Program?",
       hint: "CHTBB is for children aged 1½ to 10 at Focus 2027.",
     },
   },
@@ -131,8 +131,13 @@ export const DIET_OPTIONS = [
 export const DIET_NOTES_REQUIRED = new Set(["other"]);
 
 export const STAY_OPTIONS = [
-  { value: "family_room", label: "Family room" },
+  { value: "family_room", label: "With family" },
   { value: "other_youths", label: "With other youths" },
+];
+
+export const STAY_ROOM_OPTIONS = [
+  { value: "specify", label: "I would like to room with" },
+  { value: "none", label: "No preference" },
 ];
 
 export const ROOM_OPTIONS = [

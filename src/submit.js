@@ -46,6 +46,10 @@ export function buildPayload(state, entries, options = {}) {
       youthProgram: section === "youth" ? person.youthProgram || "" : "",
       chtbbProgram: section === "child" ? person.chtbbProgram || "" : "",
       stayWith: section === "youth" ? person.stayWith || "" : "",
+      stayRoomPref: section === "youth" && person.stayWith === "other_youths" ? person.stayRoomPref || "" : "",
+      stayRoommateName: section === "youth" && person.stayWith === "other_youths" && person.stayRoomPref === "specify"
+        ? clean(person.stayRoommateName)
+        : "",
       rooming: section === "adult" ? person.rooming || "" : "",
       roomingPref: section === "adult" && person.rooming === "twin" ? person.roomingPref || "" : "",
       roommateName: section === "adult" && person.rooming === "twin" && person.roomingPref === "specify"
