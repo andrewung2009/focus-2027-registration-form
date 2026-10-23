@@ -243,13 +243,42 @@ function roommateChoice(person, specify) {
     </fieldset>`;
 }
 
-function roomingFields(person, mode = "self", adultCount = 1) {
+function roomingFields(person, mode = "self", adultCount = 1, showLegend = true) {
   const isSelf = mode === "self";
   const suiteGroup = mode === "friends" && adultCount >= 4;
   const values = suiteGroup ? ROOM_GROUPS.suite4 : ROOM_GROUPS.twin2;
   const options = values.map(roomOption).filter(Boolean);
   const specify = person.roomingPref === "specify";
   const copy = roomCopy(mode, suiteGroup).map((paragraph) => `<p class="field-hint">${paragraph}</p>`).join("");
+
+  const legend = showLegend
+    ? `<legend class="field-label">Room preference <span class="req">*</span></legend>`
+    : "";
+  const attrs = showLegend ? "" : ' aria-label="Room preference"';
+
+  if (suiteGroup) {
+    const byValue = (value) => options.find((option) => option.value === value);
+    const optionCell = (option) => (option ? `
+      <label class="room-opt">
+        <input type="radio" name="rooming-${person.localId}" value="${option.value}"
+          data-field="rooming" ${person.rooming === option.value ? "checked" : ""}>
+        <span>${esc(option.label)}</span>
+      </label>` : "");
+    const imageCell = (option) => (option ? `
+      <figure class="room-photo">
+        <img src="${esc(option.image)}" alt="${esc(option.label)}" loading="lazy">
+      </figure>` : "");
+    const pair = (first, second) => `${optionCell(first)}${optionCell(second)}${imageCell(first)}${imageCell(second)}`;
+    const cells = pair(byValue("double_queen"), byValue("double_twin_suite"))
+      + pair(byValue("deluxe_suite"), byValue("family_suite"));
+    return `
+      <fieldset class="field field-span"${attrs}>
+        ${legend}
+        ${copy}
+        <div class="room-suite-grid">${cells}</div>
+        <p class="field-error" data-error="rooming"></p>
+      </fieldset>`;
+  }
 
   const choices = options.map((option) => `
     <label>
@@ -267,14 +296,34 @@ function roomingFields(person, mode = "self", adultCount = 1) {
       <img src="${esc(option.image)}" alt="${esc(option.label)}" loading="lazy">
     </figure>`).join("");
   return `
-    <fieldset class="field field-span">
-      <legend class="field-label">Room preference <span class="req">*</span></legend>
+    <fieldset class="field field-span"${attrs}>
+      ${legend}
       ${copy}
       <div class="segmented segmented-sm">${choices}</div>
       <div class="room-photos">${gallery}</div>
       <p class="field-error" data-error="rooming"></p>
     </fieldset>
     ${isSelf ? roommateChoice(person, specify) : ""}`;
+}
+
+export function renderRoomPanel(state) {
+  const mode = modeById(state.mode);
+  const lead = state.people.adult[0];
+  if (!lead || !["self", "couple", "friends"].includes(mode.id)) return "";
+  const adultCount = visiblePeople(state, "adult").length;
+  return `
+    <section class="panel room-panel" data-room-panel aria-labelledby="heading-room">
+      <header class="panel-head">
+        <div><h2 id="heading-room">Room preference</h2></div>
+      </header>
+      <div class="panel-body">
+        <article class="person-card section-adult" data-person="${lead.localId}" data-section="adult">
+          <div class="person-grid">
+            ${roomingFields(lead, mode.id, adultCount, false)}
+          </div>
+        </article>
+      </div>
+    </section>`;
 }
 
 function emailField(person) {
@@ -366,7 +415,7 @@ export function renderSection(state, section) {
     : people.length > 0;
   const cards = people.map((person, index) => renderPersonCard(person, section, index, {
     canRemove,
-    fields: fieldsForMode(section, mode, section.id === "adult" && index === 0),
+    fields: fieldsForMode(section, mode, section.id === "adult" && index === 0).filter((field) => field !== "rooming"),
     label: mode.maxAdults === 1 ? `${section.label} registration` : `${section.label} ${index + 1}`,
     locks: section.id === "youth" ? mode.locks : undefined,
     mode: mode.id,

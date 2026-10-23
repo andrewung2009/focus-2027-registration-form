@@ -12,7 +12,7 @@ import {
   pruneBlank,
   visiblePeople,
 } from "./model.js";
-import { renderSection } from "./ui/person-card.js";
+import { renderRoomPanel, renderSection } from "./ui/person-card.js";
 import { renderProofPanel, formatBytes } from "./ui/proof.js";
 import { renderReview, renderSuccess } from "./ui/review.js";
 import { buildPayload, buildRegistrationId, sendRegistration } from "./submit.js";
@@ -108,6 +108,7 @@ function render() {
   root.innerHTML = [
     renderModeBar(),
     visibleSections().map((section) => renderSection(state, section)).join(""),
+    renderRoomPanel(state),
     renderProofPanel(state.proof, PAYMENT),
     renderActionBar(),
   ].join("");
@@ -135,9 +136,11 @@ function showFieldError(card, key, message) {
 }
 
 function refreshCard(person) {
-  const card = root.querySelector(`[data-person="${person.localId}"]`);
-  if (!card) return;
+  const cards = root.querySelectorAll(`[data-person="${person.localId}"]`);
+  for (const card of cards) refreshCardContainer(card, person);
+}
 
+function refreshCardContainer(card, person) {
   const ageElement = card.querySelector("[data-age]");
   if (ageElement) {
     ageElement.textContent = person.dob
@@ -350,10 +353,11 @@ function validateForm() {
 
   clearErrors();
   for (const [localId, result] of Object.entries(results)) {
-    const card = root.querySelector(`[data-person="${localId}"]`);
-    if (!card) continue;
-    for (const [key, message] of Object.entries(result.errors)) {
-      showFieldError(card, key, message);
+    const cards = root.querySelectorAll(`[data-person="${localId}"]`);
+    for (const card of cards) {
+      for (const [key, message] of Object.entries(result.errors)) {
+        showFieldError(card, key, message);
+      }
     }
   }
   for (const entry of entries) refreshCard(entry.person);

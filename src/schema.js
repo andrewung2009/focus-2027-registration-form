@@ -37,7 +37,7 @@ export const SECTIONS = [
     program: {
       field: "chtbbProgram",
       label: "Will this child be participating in the CHTBB Program?",
-      hint: "CHTBB is for children aged 1Â½ to 10 at Focus 2027.",
+      hint: "CHTBB is for children aged 1½ to 10 at Focus 2027.",
     },
   },
 ];
@@ -61,7 +61,7 @@ export const MODES = [
   {
     id: "couple",
     label: "Married couple",
-    hint: "2 adults Â· 1 male, 1 female",
+    hint: "2 adults · 1 male, 1 female",
     sections: ["adult"],
     startAdults: 2,
     minAdults: 2,
