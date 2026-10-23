@@ -33,7 +33,7 @@ export function buildPayload(state, entries, options = {}) {
       section,
       name: clean(person.name),
       idType: isPassport ? "passport" : "mykad",
-      idCountry: isPassport ? clean(person.idCountry) : "",
+      idCountry: isPassport ? (person.idCountry === "OT" ? clean(person.idCountryOther) : clean(person.idCountry)) : "",
       idNumber: isPassport ? normalisePassport(person.idNumber) : normaliseMyKad(person.idNumber),
       dob: person.dob || "",
       gender: person.gender || "",

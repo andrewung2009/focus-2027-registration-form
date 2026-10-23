@@ -19,6 +19,7 @@ import {
   validateName,
   validatePassport,
   validatePassportCountry,
+  validatePassportCountryOther,
   validatePerson,
   validatePhone,
   validateProof,
@@ -146,6 +147,21 @@ test("passport issuing country is required and validated", () => {
   assert.match(validatePassportCountry(""), /issuing country|select/i);
   assert.match(validatePassportCountry("ZZ"), /valid country/i);
   assert.equal(validatePassportCountry("MY"), null);
+});
+
+test("an 'Other country' passport needs a typed country name", () => {
+  assert.match(validatePassportCountryOther(""), /type the country/i);
+  assert.match(validatePassportCountryOther("   "), /type the country/i);
+  assert.match(validatePassportCountryOther("Korea1"), /valid country name/i);
+  assert.equal(validatePassportCountryOther("South Korea"), null);
+  const { errors } = validatePerson(adult({
+    idType: "passport",
+    idNumber: "AB123456",
+    idCountry: "OT",
+    idCountryOther: "",
+  }), { section: "adult", fields: ADULT_FIELDS });
+  assert.match(errors.idCountryOther, /type the country/i);
+  assert.equal(errors.idCountry, undefined);
 });
 
 test("validateId dispatches on the ID type", () => {
@@ -359,6 +375,20 @@ test("groups of friends register as 2 or 4 adults", () => {
   const five = validateRegistration({ mode: "friends" }, completeEntries(makeAdults(5)));
   assert.equal(five.ok, false);
   assert.ok(five.formErrors.some((message) => /5 or fewer|2 or 4/i.test(message)));
+});
+
+test("a friends group must all share the same gender", () => {
+  const mixed = [
+    adult({ gender: "male", name: "Friend A", idNumber: "900101145601" }),
+    adult({ gender: "female", name: "Friend B", idNumber: "900101145602" }),
+  ];
+  const result = validateRegistration({ mode: "friends" }, completeEntries(mixed));
+  assert.equal(result.ok, false);
+  assert.ok(result.formErrors.some((message) => /same gender|all male or all female/i.test(message)));
+
+  const allMale = makeAdults(4).map((person) => ({ ...person, gender: "male" }));
+  const clean = validateRegistration({ mode: "friends" }, completeEntries(allMale));
+  assert.equal(clean.ok, true);
 });
 
 test("families cap at six people", () => {

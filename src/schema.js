@@ -6,7 +6,8 @@ export const SECTIONS = [
     id: "adult",
     label: "Adult",
     plural: "Adults",
-    ages: "Age 18 and above at Focus 2027",
+    ages: "Age 18 and above in the year 2027",
+    note: "Thank you for completing this registration! You will be the main contact for this registration. Please ensure that the email address that you are providing below is one you check regularly, as most future camp communications will be sent there. To prevent duplicate submissions, please ensure you are the only person who submits this form on behalf of your group.",
     addLabel: "Add another adult",
     fields: ["name", "id", "dob", "gender", "phone", "diet"],
     program: null,
@@ -83,7 +84,7 @@ export const MODES = [
   {
     id: "friends",
     label: "A group of adult friends rooming together",
-    hint: "2 pax or 4 pax",
+    hint: "2 pax or 4 pax (same gender)",
     sections: ["adult"],
     startAdults: 2,
     minAdults: 2,

@@ -176,6 +176,16 @@ function refreshCard(person) {
   const idCountry = card.querySelector('[data-field="idCountry"]');
   if (idCountry) idCountry.hidden = person.idType !== "passport";
 
+  const idCountryOther = card.querySelector('[data-field="idCountryOther"]');
+  if (idCountryOther) {
+    idCountryOther.hidden = !(person.idType === "passport" && person.idCountry === "OT");
+    if (idCountryOther.hidden) {
+      const otherError = card.querySelector('[data-error="idCountryOther"]');
+      if (otherError) otherError.textContent = "";
+      idCountryOther.removeAttribute("aria-invalid");
+    }
+  }
+
   const phone = card.querySelector('[data-field="phone"]');
   if (phone) {
     phone.placeholder = person.phoneCountry === "MY"

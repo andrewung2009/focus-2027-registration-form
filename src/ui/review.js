@@ -30,8 +30,11 @@ function dietText(person) {
 
 function detailsFor(person, section) {
   const phone = toE164(person.phone, person.phoneCountry) || person.phone;
+  const countryName = person.idCountry === "OT"
+    ? (String(person.idCountryOther || "").trim() || "Other country")
+    : person.idCountry ? getCountry(person.idCountry).name : "";
   const idText = person.idType === "passport"
-    ? `Passport · ${person.idCountry ? getCountry(person.idCountry).name : "—"} · ${person.idNumber}`
+    ? `Passport · ${countryName || "—"} · ${person.idNumber}`
     : `${labelFor(ID_TYPES, person.idType)} · ${person.idNumber}`;
   const rows = [
     ["Date of birth", `${formatDisplayDate(person.dob)} · ${ageLabel(person.dob, CAMP.cutoffDate)} at ${CAMP.name} ${CAMP.year}`],

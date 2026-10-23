@@ -29,6 +29,7 @@ function nameField(person) {
 
 function idField(person) {
   const isPassport = person.idType === "passport";
+  const otherCountry = isPassport && person.idCountry === "OT";
   const placeholder = isPassport ? "Passport number" : "e.g. 900101-14-5678";
   const countryOptions = COUNTRIES
     .map((country) => option(country.code, country.name, person.idCountry))
@@ -48,7 +49,10 @@ function idField(person) {
           autocomplete="off" spellcheck="false" inputmode="${isPassport ? "text" : "numeric"}"
           placeholder="${placeholder}">
       </div>
+      <input class="input" type="text" data-field="idCountryOther" value="${esc(person.idCountryOther)}"
+        maxlength="80" placeholder="Type the issuing country" ${otherCountry ? "" : "hidden"}>
       <p class="field-error" data-error="idCountry"></p>
+      <p class="field-error" data-error="idCountryOther"></p>
       <p class="field-error" data-error="idNumber"></p>
     </div>`;
 }
@@ -232,17 +236,20 @@ function fieldsFor(person, section, fieldIds) {
 
 export function renderPersonCard(person, section, index, options = {}) {
   const label = options.label || `${section.label} ${index + 1}`;
+  const isMainContact = section.id === "adult" && index === 0;
   return `
     <article class="person-card section-${section.id}" data-person="${person.localId}" data-section="${section.id}">
       <header class="person-head">
         <div class="person-id">
           <span class="pill">${esc(label)}</span>
+          ${isMainContact ? '<span class="pill pill-main">Main contact</span>' : ""}
         </div>
         <div class="person-tools">
           <span class="age-readout" data-age>Age as at ${CAMP.ageAsOf}: ${esc(person.dob ? ageLabel(person.dob, CAMP.cutoffDate) : "—")}</span>
           ${options.canRemove ? '<button type="button" class="btn tiny ghost danger" data-remove>Remove</button>' : ""}
         </div>
       </header>
+      ${isMainContact && section.note ? `<p class="card-note">${esc(section.note)}</p>` : ""}
       <p class="card-alert" data-alert hidden></p>
       <div class="person-grid">
         ${fieldsFor(person, section, options.fields || section.fields)}

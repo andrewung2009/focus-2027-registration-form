@@ -107,6 +107,14 @@ export function validatePassportCountry(value) {
   return null;
 }
 
+export function validatePassportCountryOther(value) {
+  const name = String(value ?? "").trim();
+  if (!name) return "Type the country that issued this passport.";
+  if (name.length > 80) return "Country name must be 80 characters or fewer.";
+  if (!/^[\p{L}\p{M}][\p{L}\p{M} .'()-]*$/u.test(name)) return "Enter a valid country name.";
+  return null;
+}
+
 export function validateId(person) {
   if (person.idType === "passport") return validatePassport(person.idNumber);
   return validateMyKad(person.idNumber, person.dob);
@@ -278,6 +286,10 @@ export function validatePerson(person, options = {}) {
     if (person.idType === "passport") {
       const countryMessage = validatePassportCountry(person.idCountry);
       if (countryMessage) errors.idCountry = countryMessage;
+      else if (person.idCountry === "OT") {
+        const otherMessage = validatePassportCountryOther(person.idCountryOther);
+        if (otherMessage) errors.idCountryOther = otherMessage;
+      }
     }
     const message = validateId(person);
     if (message) errors.idNumber = message;
@@ -343,6 +355,13 @@ export function fieldError(person, field) {
       return { key: "idNumber", message: validateId(person) };
     case "idCountry":
       return { key: "idCountry", message: person.idType === "passport" ? validatePassportCountry(person.idCountry) : null };
+    case "idCountryOther":
+      return {
+        key: "idCountryOther",
+        message: person.idType === "passport" && person.idCountry === "OT"
+          ? validatePassportCountryOther(person.idCountryOther)
+          : null,
+      };
     case "dob":
       return { key: "dob", message: validateDobDisplay(person) };
     case "gender":
@@ -446,6 +465,23 @@ export function validateRegistration(state, entries) {
       for (const entry of duplicates) {
         const result = results[entry.person.localId];
         if (result && !result.errors.gender) result.errors.gender = message;
+        if (result) result.ok = false;
+      }
+    }
+  }
+
+  if (mode.id === "friends" && adultCount >= 2) {
+    const maleCount = adultEntries.filter((entry) => entry.person.gender === "male").length;
+    const femaleCount = adultEntries.filter((entry) => entry.person.gender === "female").length;
+    if (maleCount > 0 && femaleCount > 0) {
+      formErrors.push("A group of adult friends must be all male or all female (same gender). Check the genders you selected.");
+      const majority = maleCount > femaleCount ? "male" : femaleCount > maleCount ? "female" : null;
+      for (const entry of adultEntries) {
+        const gender = entry.person.gender;
+        if (!gender) continue;
+        if (majority && gender === majority) continue;
+        const result = results[entry.person.localId];
+        if (result && !result.errors.gender) result.errors.gender = "Everyone in a friends group must share the same gender.";
         if (result) result.ok = false;
       }
     }

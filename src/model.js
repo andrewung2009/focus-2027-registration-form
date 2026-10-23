@@ -11,6 +11,7 @@ export function blankPerson(section) {
     email: "",
     idType: "mykad",
     idCountry: "",
+    idCountryOther: "",
     idNumber: "",
     dob: "",
     dobDisplay: "",
